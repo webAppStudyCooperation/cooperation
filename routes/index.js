@@ -1,14 +1,13 @@
 var express = require("express");
 var router = express.Router();
+const db = require('./../db'); // db 모듈 추가
 
 /* GET home page. */
 router.get("/", function (req, res, next) {
-  res.render("index");
+  db.getAllBoard((rows) =>{
+    res.render('index', {rows: rows});
+  });
+  // res.render('index')
 });
-// router.get("/test", function (req, res, next) {
-//   const path = require("path");
-//   const options = { root: path.join(__dirname, "../views") };
-//   res.sendFile("htmlTest.html", options);
-// });
 
 module.exports = router;
