@@ -1,7 +1,6 @@
 const board = document.getElementById("board");
 let boardFlag = false;
 const mainContentElem = document.getElementById("mainContent");
-let commentList;
 
 //DB에 저장되어있는 글 목록 전부 나열
 
@@ -27,6 +26,11 @@ function createComment(DBcommentList) {
     const comment = document.createElement("div");
     const commentID = document.createElement("span");
     const commentContent = document.createElement("span");
+
+    comment.className = "sigleComment";
+    commentID.className = "CommentID";
+    commentContent.className = "CommentContetn";
+
     commentID.innerText = DBcommentList[i].id;
     commentContent.innerText = DBcommentList[i].comment;
 
@@ -38,8 +42,15 @@ function createComment(DBcommentList) {
 }
 
 /* single Feed, 토글 버튼, 댓글 */
+const FeedState = {
+  CLOSE: "close",
+  OPEN: "open",
+};
+
 class Feed {
   constructor(content) {
+    this.commentList = createComment(testComment);
+    console.log(this.commentList);
     const feed = document.createElement("div");
     feed.innerText = content;
 
@@ -47,31 +58,37 @@ class Feed {
     const toggleBtn = document.createElement("button");
     toggleBtn.innerText = "open";
 
-    toggleBtn.addEventListener("click", this.buttonClicked);
+    // toggleBtn.addEventListener("click", (event) =>
+    //   this.buttonClicked(event, this.commentList)
+    // );
+    toggleBtn.addEventListener("click", this.getListener(this.commentList));
 
     feed.appendChild(toggleBtn);
     mainContentElem.appendChild(feed);
   }
 
   /*버튼 toggle */
-  buttonClicked(event) {
-    console.log(event.target.parentNode);
+  buttonClicked(event, commentList) {
     if (event.target.innerText === "open") {
       event.target.innerText = "close";
-      commentOpen(event);
+      event.target.parentNode.appendChild(commentList);
     } else {
       event.target.innerText = "open";
-      commentClose(event);
+      event.target.parentNode.removeChild(commentList);
     }
   }
-}
 
-function commentOpen(event) {
-  commentList = createComment(testComment);
-  event.target.parentNode.appendChild(commentList);
-}
-function commentClose(event) {
-  event.target.parentNode.removeChild(commentList);
+  getListener(commentList) {
+    return function (event) {
+      if (event.target.innerText === "open") {
+        event.target.innerText = "close";
+        event.target.parentNode.appendChild(commentList);
+      } else {
+        event.target.innerText = "open";
+        event.target.parentNode.removeChild(commentList);
+      }
+    };
+  }
 }
 
 function showBoardFeed() {
