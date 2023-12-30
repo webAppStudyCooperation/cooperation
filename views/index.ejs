@@ -1,41 +1,27 @@
 <!DOCTYPE html>
+
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
+    <link href="/stylesheets/style.css" rel="stylesheet" />
   </head>
   <body>
-    <p>html test ~~~</p>
-    <h6>testUrl Result</h6>
-    <p id="apiTest"></p>
-    </br>
-    </br>
-    <h6>realUrl Result</h6>
-    <p id="apiTest2"></p>
+    <header class="header">header</header>
+    <div class="content">
+      <div id="mainContent">content</div>
+      <div class="menuBar">
+        menuBar
+        <p id="login">로그인</p>
+        <p id="board">게시판</p>
+        <p id="chat">채팅</p>
+        <p id="game">오목</p>
+        <p id="apiTest"></p>
+      </div>
+    </div>
+    <footer>footer</footer>
   </body>
+  <script type="module" src="/js/board.js"></script>
 </html>
-
-
-<!-- cors 정책에 의해 접근한 ip로만 호출 가능함 -->
-<script>
-  let testUrl = "http://localhost:3000/"
-  fetch(testUrl + "api/boards")
-    .then(response => 
-    response.text()
-      .then(data => 
-        document.getElementById("apiTest").innerHTML = data
-      )
-    );
-</script>
-<script>
-  let realUrl = "http://1.230.253.190:9280/"
-  fetch(realUrl + "api/boards")
-    .then(response => 
-    response.text()
-      .then(data => 
-        document.getElementById("apiTest2").innerHTML = data
-      )
-    );
-</script>
