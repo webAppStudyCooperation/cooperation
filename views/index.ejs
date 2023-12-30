@@ -19,28 +19,9 @@
         <p id="chat">채팅</p>
         <p id="game">오목</p>
         <p id="apiTest"></p>
-        <p id="apiTest2"></p>
       </div>
     </div>
     <footer>footer</footer>
   </body>
-  <script src="/js/board.js"></script>
+  <script type="module" src="/js/board.js"></script>
 </html>
-
-<!-- cors 정책에 의해 접근한 ip로만 호출 가능함 -->
-<script>
-  let testUrl = "http://localhost:3000/";
-  fetch(testUrl + "api/boards").then((response) =>
-    response
-      .text()
-      .then((data) => (document.getElementById("apiTest").innerHTML = data))
-  );
-</script>
-<script>
-  let realUrl = "http://1.230.253.190:9280/";
-  fetch(realUrl + "api/boards").then((response) =>
-    response
-      .text()
-      .then((data) => (document.getElementById("apiTest2").innerHTML = data))
-  );
-</script>

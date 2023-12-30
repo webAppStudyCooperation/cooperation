@@ -2,6 +2,15 @@ const board = document.getElementById("board");
 let boardFlag = false;
 const mainContentElem = document.getElementById("mainContent");
 
+import { baseURL } from "./config.js";
+
+fetch(baseURL + "api/boards").then((response) =>
+  response.json().then((data) => {
+    console.log(data);
+    document.getElementById("apiTest").innerHTML = data[0].content;
+  })
+);
+
 //DB에 저장되어있는 글 목록 전부 나열
 
 /* test feed 리스트 */
