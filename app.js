@@ -6,7 +6,7 @@ var logger = require("morgan");
 
 // router변수 정의
 var indexRouter = require("./routes/index");
-var apiRouter = require("./routes/testApi");
+var apiRouter = require("./routes/boardApi.ts");
 
 var app = express();
 
