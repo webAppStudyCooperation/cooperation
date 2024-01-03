@@ -23,7 +23,7 @@ app.use(express.static(path.join(__dirname, "public")));
 // router 경로 연결
 // https://ip:port/~~~
 app.use("/", indexRouter);
-app.use("/api", apiRouter)
+app.use("/api", apiRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -38,7 +38,7 @@ app.use(function (err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500);
-  res.render("error", {error: err});
+  res.render("error", { error: err });
 });
 
 module.exports = app;
