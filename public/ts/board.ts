@@ -6,7 +6,7 @@ let dataObj;
 
 import { type } from "os";
 import { title } from "process";
-import { baseURL } from "./config";
+import { baseURL } from "./config.js";
 // const localURL = "http://localhost:3000/";
 // const baseURL = localURL;
 
