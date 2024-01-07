@@ -1,3 +1,6 @@
+import { BoardComment } from "./comments";
+import { User } from "./user";
+
 class SecretNumber {
     valid: boolean
     value: number
@@ -7,7 +10,7 @@ class SecretNumber {
     }
 }
 
-class DateString {
+export class DateString {
     valid: boolean
     date: string
     constructor(str: string) {
@@ -17,19 +20,35 @@ class DateString {
     }
 }
 
-interface IBoardItem {
+export class BoardItem {
     boardId: number
     title: string
     content: string
     creationDate: DateString
     modifyDate: DateString
-    password: string
+    password: string | null
     secret: number
-    createUserId: string
-}
+    createUser: User | null
+    comments: BoardComment[]
 
-export {
-    DateString,
-    SecretNumber,
-    IBoardItem
+    constructor(
+        boardId: number,
+        title: string,
+        content: string,
+        creationDate: DateString,
+        modifyDate: DateString,
+        password: string | null,
+        secret: number,
+        createUser: User,
+    ) {
+        this.boardId = boardId
+        this.title = title
+        this.content = content
+        this.creationDate = creationDate
+        this.modifyDate = modifyDate
+        this.password = password
+        this.secret = secret
+        this.createUser = createUser
+        this.comments = []
+    }
 }
