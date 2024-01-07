@@ -3,16 +3,38 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www",
-    "test": "nodemon -e js --exec ./bin/www"
+    "start": "npm run build_front && npm run build_back && ts-node ./bin/www",
+    "build_back": "npx tsc -p .",
+    "build_front": "cd ./public && npx tsc -p . && cd ..",
+    "dev": "concurrently \"npx tsc --watch\" \"nodemon index.ts\""
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
+    "dotenv": "^16.3.1",
     "ejs": "^3.1.9",
+    "errorhandler": "^1.5.1",
     "express": "^4.18.2",
     "http-errors": "~1.6.3",
     "morgan": "~1.9.1",
-    "nodemon": "^3.0.2"
+    "mysql2": "^3.6.5",
+    "winston": "^3.11.0"
+  },
+  "type": "commonjs",
+  "description": "### router정의 컨벤션 1. /routes 폴더 안에 js파일로 method 정의 2. app.js 파일에 router변수 정의 3. html파일 등은 /views 폴더에 정의 4. js, 이미지 등 client에게 제공하는 파일들은 /public 폴더에 정의",
+  "main": "app.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/errorhandler": "^1.5.3",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.10.6",
+    "@types/winston": "^2.4.4",
+    "concurrently": "^8.2.2",
+    "nodemon": "^3.0.2",
+    "ts-node": "^10.9.2",
+    "tslib": "^2.6.2",
+    "typescript": "^5.3.3"
   }
 }
