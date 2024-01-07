@@ -1,22 +1,54 @@
 import { BoardComment } from "./comments";
 import { User } from "./user";
 
-class SecretNumber {
+export class SecretNumber {
     valid: boolean
     value: number
     constructor(secret: number) {
         this.valid = (0 <=secret && secret <= 1);
         this.value = secret;
     }
+    getSecret(): number {
+        if(this.valid) {
+            return this.value
+        } else {
+            return 0
+        }
+    }
 }
 
 export class DateString {
     valid: boolean
-    date: string
-    constructor(str: string) {
-        const regex = /\d\d-\d\d-\d\d/;
-        this.valid = regex.test(str);
-        this.date = str;
+    date: Date | null
+    constructor(str: string | null, date: Date | null) {
+        if(date != null ) {
+            this.date = date
+            this.valid = true
+        } else {
+            try {
+                if(str == null) {
+                    throw Error
+                }
+                this.date = new Date(str)
+                this.valid = true
+            } catch {
+                this.valid = false
+                this.date = null
+            }
+        }
+    }
+
+    getDateString(): string | null { 
+        if(this.date == null) {
+            return null
+        } else {
+            return this.date.getFullYear() + ":"
+             + this.date.getMonth + ":"
+             + this.date.getDate + " "
+             + this.date.getHours() + ":"
+             + this.date.getMinutes() + ":"
+             + this.date.getSeconds()
+        }
     }
 }
 
@@ -27,7 +59,7 @@ export class BoardItem {
     creationDate: DateString
     modifyDate: DateString
     password: string | null
-    secret: number
+    secret: SecretNumber
     createUser: User | null
     comments: BoardComment[]
 
@@ -47,7 +79,7 @@ export class BoardItem {
         this.creationDate = creationDate
         this.modifyDate = modifyDate
         this.password = password
-        this.secret = secret
+        this.secret = new SecretNumber(secret)
         this.createUser = createUser
         this.comments = []
     }

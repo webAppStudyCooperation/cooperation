@@ -10,6 +10,10 @@ var apiRouter = require("./routes/boardApi.ts");
 
 var app = express();
 
+// post요청받을때 body 파싱을 위함
+app.use(express.json()); 
+app.use(express.urlencoded({ extended: false }));
+
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
