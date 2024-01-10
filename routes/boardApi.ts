@@ -65,8 +65,7 @@ router.put(
       }
     );
   }
-)
-
+);
 
 /**
  * BoardItem 생성 api 아래 형식으로 요청 가능
@@ -111,12 +110,12 @@ router.post(
             res.status(400).json("{'message': fail}")
           }
         }
-      )
+      });
     } catch {
       res.status(400).json("{'message': fail}")
     }
   }
-)
+);
 
 /**
  * BoardItem을 삭제하는 api
@@ -147,29 +146,26 @@ router.delete(
       res.status(400).json("{'message': fail}")
     }
   }
-)
+);
 
 /**댓글 생성 -> body에 boardComment넣어서 보낼 것 */
 router.post(
   "/boards/comment/add",
   function (req: Request, res: Response, next: NextFunction) {
     try {
-      let comment: BoardComment = req.body.boardComment 
-      db.insertComment(
-        comment,
-        (success: boolean) => {
-          if(success) {
-            res.status(200).json("message: success")
-          } else {
-            res.status(400).json("message: fail")
-          }
+      let comment: BoardComment = req.body.boardComment;
+      db.insertComment(comment, (success: boolean) => {
+        if (success) {
+          res.status(200).json("message: success");
+        } else {
+          res.status(400).json("message: fail");
         }
-      )
+      });
     } catch {
       res.status(400).json("{'message': fail}")
     }  
   }
-)
+);
 
 /**
  * 댓글 삭제 api
@@ -192,11 +188,11 @@ router.delete(
             res.status(400).json("{'message': fail}")
           }
         }
-      )
+      });
     } catch {
       res.status(400).json("{'message': fail}")
     }
   }
-)
+);
 
 module.exports = router;

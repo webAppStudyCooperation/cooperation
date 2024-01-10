@@ -3,6 +3,7 @@ let boardFlag = false;
 const mainContentElem: HTMLElement | null =
   document.getElementById("mainContent");
 
+import { response } from "express";
 import { env } from "process";
 import { baseURL } from "./config.js";
 import { BoardItem } from "./models/boards.js";
@@ -138,7 +139,7 @@ class Feed {
     this.removeBtn = document.createElement("button");
     this.removeBtn.innerText = "remove";
     this.removeBtn.addEventListener("click", (event) => {
-      this.removeListner(event);
+      this.removeListner(this.boardItem.boardId);
     });
 
     //수정버튼
@@ -198,9 +199,29 @@ class Feed {
   }
 
   private removeListner(boardId: number) {
-    fetch(baseURL + `boards/comment/delete/boardId=${boardId}`);
+    fetch(baseURL + `api/boards/comment/delete`, {
+      method: "DELETE",
+      // headers: {
+      //   "Content-type": "application/json; charset=UTF-8",
+      // },
+      // body: JSON.stringify({ boardId: boardId }),
+    })
+      .then((response) => response)
+      .then((d) => console.log(d));
 
     //DB 업데이트
+    // console.log(boardId);
+    // fetch(baseURL + `api/boards/delete`, {
+    //   method: "DELETE",
+    //   headers: {
+    //     "Content-type": "application/json; charset=UTF-8",
+    //   },
+    //   body: JSON.stringify({ boardId: boardId }),
+    // })
+    //   .then((response) => response)
+    //   .then((d) => console.log(d));
+
+    // //DB 업데이트
   }
 
   private editListner() {

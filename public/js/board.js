@@ -83,7 +83,9 @@ class Feed {
         //삭제 버튼
         this.removeBtn = document.createElement("button");
         this.removeBtn.innerText = "remove";
-        this.removeBtn.addEventListener("click", this.removeListner);
+        this.removeBtn.addEventListener("click", (event) => {
+            this.removeListner(this.boardItem.boardId);
+        });
         //수정버튼
         this.editBtn = document.createElement("button");
         this.editBtn.innerText = "edit";
@@ -138,9 +140,28 @@ class Feed {
         this.toggleBtn.innerText = "open";
         (_a = this.toggleBtn.parentNode) === null || _a === void 0 ? void 0 : _a.removeChild(this.commentUI);
     }
-    removeListner() {
-        fetch(baseURL + );
+    removeListner(boardId) {
+        fetch(baseURL + `api/boards/comment/delete`, {
+            method: "DELETE",
+            // headers: {
+            //   "Content-type": "application/json; charset=UTF-8",
+            // },
+            // body: JSON.stringify({ boardId: boardId }),
+        })
+            .then((response) => response)
+            .then((d) => console.log(d));
         //DB 업데이트
+        // console.log(boardId);
+        // fetch(baseURL + `api/boards/delete`, {
+        //   method: "DELETE",
+        //   headers: {
+        //     "Content-type": "application/json; charset=UTF-8",
+        //   },
+        //   body: JSON.stringify({ boardId: boardId }),
+        // })
+        //   .then((response) => response)
+        //   .then((d) => console.log(d));
+        // //DB 업데이트
     }
     editListner() {
         //DB 업데이트
