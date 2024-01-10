@@ -139,7 +139,7 @@ function insertComment(
       }
       callback(true)
     }
-  });
+  );
 }
 
 function deleteComment(commentId: number, callback: (success: boolean) => {}) {

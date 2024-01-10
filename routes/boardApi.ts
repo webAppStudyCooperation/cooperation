@@ -110,7 +110,7 @@ router.post(
             res.status(400).json("{'message': fail}")
           }
         }
-      });
+      );
     } catch {
       res.status(400).json("{'message': fail}")
     }
@@ -188,7 +188,7 @@ router.delete(
             res.status(400).json("{'message': fail}")
           }
         }
-      });
+      );
     } catch {
       res.status(400).json("{'message': fail}")
     }
