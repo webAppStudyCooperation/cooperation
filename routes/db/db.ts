@@ -63,6 +63,7 @@ function getCommentsByBoardId(
           item["nickname"]
         )
         let boardComment = new BoardComment(
+          item["boardId"],
           item["idcomment"],
           item["content"],
           user
@@ -133,6 +134,40 @@ function deleteBoardItem(
   )
 }
 
+function insertComment(
+  boardComment: BoardComment,
+  callback: (success: boolean) => {}
+) {
+  let query = `INSERT INTO cooperation.comment (idcomment, content, userId, boardId) VALUES (${boardComment.commentId}, "${boardComment.content}", "${boardComment.user.id}", ${boardComment.boardId});`
+  connection.query (
+    query,
+    (err: any, rows: any, fields: any) => {
+      if(err) {
+        log(err)
+        callback(false)
+      } else {
+        callback(true)
+      }
+    }
+  )
+}
+
+function deleteComment(
+  commentId: number,
+  callback: (success: boolean) => {}
+) {
+  connection.query (
+    `delete from comment where commentid = ${commentId}`,
+    (err: any, rows: any, fields: any) => {
+      if(err) {
+        callback(false)
+      } else {
+        callback(true)
+      }
+    }
+  )
+}
+
 
 module.exports = {
   getAllBoard,
@@ -140,4 +175,6 @@ module.exports = {
   updateBoardItem,
   insertBoardItem,
   deleteBoardItem,
+  insertComment,
+  deleteComment,
 };

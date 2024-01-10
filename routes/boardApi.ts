@@ -12,7 +12,6 @@ router.get(
   "/boards",
   function (req: Request, res: Response, next: NextFunction) {
     db.getAllBoard((rows: BoardItem[]) => {
-      log(rows)
       res.status(200).json(rows);
     });
   }
@@ -63,6 +62,9 @@ router.post(
   function (req: Request, res: Response, next: NextFunction) {
     try {
       let boardItem = req.body as BoardItem
+      if(boardItem == null || boardItem == undefined) {
+        throw Error
+      }  
       db.insertBoardItem(
         boardItem,
         (success: boolean) => {
@@ -84,6 +86,9 @@ router.delete(
   function (req: Request, res: Response, next: NextFunction) {
     try {
       let boardId = req.body.boardId as number
+      if(boardId == null || boardId == undefined) {
+        throw Error
+      }   
       db.deleteBoardItem(
         boardId,
         (success: boolean) => {
@@ -97,6 +102,51 @@ router.delete(
     } catch {
       res.status(400)
     }
+  }
+)
+
+router.post(
+  "/boards/comment/add",
+  function (req: Request, res: Response, next: NextFunction) {
+    try {
+      let comment = req.body as BoardComment 
+      if(comment == null || comment == undefined) {
+        throw Error
+      }   
+      db.insertComment(
+        comment,
+        (success: boolean) => {
+          if(success) {
+            res.status(200).json("message: success")
+          } else {
+            res.status(400).json("message: fail")
+          }
+        }
+      )
+    } catch {
+      res.status(400)
+    }  
+  }
+)
+
+router.delete(
+  "boards/comment/delete",
+  function (req: Request, res: Response, next: NextFunction) {
+    try {
+      let boardId = req.body.boardId   
+      db.deleteComment(
+        boardId,
+        (success: boolean) => {
+          if(success) {
+            res.status(200)
+          } else {
+            res.status(400)
+          }
+        }
+      )
+    } catch {
+      res.status(400)
+    }  
   }
 )
 
