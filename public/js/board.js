@@ -87,11 +87,12 @@ class Feed {
         //수정버튼
         this.editBtn = document.createElement("button");
         this.editBtn.innerText = "edit";
+        this.editBtn.addEventListener("click", this.editListner);
         //토글 버튼
         this.toggleBtn = document.createElement("button");
         this.toggleBtn.innerText = "open";
         this.toggleBtn.addEventListener("click", (event) => {
-            this.toggleClicked(event);
+            this.toggleListner(event);
         });
         this.feed.appendChild(this.removeBtn);
         this.feed.appendChild(this.editBtn);
@@ -102,7 +103,7 @@ class Feed {
         return this.feed;
     }
     /*버튼 toggle */
-    toggleClicked(event) {
+    toggleListner(event) {
         // let targetParentNode = this.toggleBtn.parentNode;
         if (this.toggleBtn.innerText === "open") {
             this.addComment();
@@ -128,7 +129,7 @@ class Feed {
         }
         else {
             this.toggleBtn.innerText = "close";
-            let commentUI = createComment(this.boardItem.comments);
+            this.commentUI = createComment(this.boardItem.comments);
             (_a = this.toggleBtn.parentNode) === null || _a === void 0 ? void 0 : _a.appendChild(this.commentUI);
         }
     }
@@ -138,9 +139,12 @@ class Feed {
         (_a = this.toggleBtn.parentNode) === null || _a === void 0 ? void 0 : _a.removeChild(this.commentUI);
     }
     removeListner() {
+        fetch(baseURL + );
         //DB 업데이트
     }
-    editListner() { }
+    editListner() {
+        //DB 업데이트
+    }
 }
 /**mainContent에 feedList mainContent에 붙임 */
 function setFeedAtContent() {

@@ -3,6 +3,7 @@ let boardFlag = false;
 const mainContentElem: HTMLElement | null =
   document.getElementById("mainContent");
 
+import { env } from "process";
 import { baseURL } from "./config.js";
 import { BoardItem } from "./models/boards.js";
 import { BoardComment } from "./models/comments.js";
@@ -136,18 +137,20 @@ class Feed {
     //삭제 버튼
     this.removeBtn = document.createElement("button");
     this.removeBtn.innerText = "remove";
-    this.removeBtn.addEventListener("click", this.removeListner);
+    this.removeBtn.addEventListener("click", (event) => {
+      this.removeListner(event);
+    });
 
     //수정버튼
     this.editBtn = document.createElement("button");
     this.editBtn.innerText = "edit";
+    this.editBtn.addEventListener("click", this.editListner);
 
     //토글 버튼
     this.toggleBtn = document.createElement("button");
     this.toggleBtn.innerText = "open";
-
     this.toggleBtn.addEventListener("click", (event) => {
-      this.toggleClicked(event);
+      this.toggleListner(event);
     });
 
     this.feed.appendChild(this.removeBtn);
@@ -161,7 +164,7 @@ class Feed {
   }
 
   /*버튼 toggle */
-  private toggleClicked(event: Event) {
+  private toggleListner(event: Event) {
     // let targetParentNode = this.toggleBtn.parentNode;
     if (this.toggleBtn.innerText === "open") {
       this.addComment();
@@ -177,7 +180,6 @@ class Feed {
           this.boardItem.comments.push(elem);
           console.log(elem);
         });
-
         this.toggleBtn.innerText = "close";
         this.commentUI = createComment(this.boardItem.comments);
         this.toggleBtn.parentNode?.appendChild(this.commentUI);
@@ -185,7 +187,7 @@ class Feed {
       });
     } else {
       this.toggleBtn.innerText = "close";
-      let commentUI: HTMLDivElement = createComment(this.boardItem.comments);
+      this.commentUI = createComment(this.boardItem.comments);
       this.toggleBtn.parentNode?.appendChild(this.commentUI);
     }
   }
@@ -195,11 +197,15 @@ class Feed {
     this.toggleBtn.parentNode?.removeChild(this.commentUI);
   }
 
-  removeListner() {
+  private removeListner(boardId: number) {
+    fetch(baseURL + `boards/comment/delete/boardId=${boardId}`);
+
     //DB 업데이트
   }
 
-  editListner() {}
+  private editListner() {
+    //DB 업데이트
+  }
 }
 
 /**mainContent에 feedList mainContent에 붙임 */
