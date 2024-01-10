@@ -81,18 +81,18 @@ function updateBoardItem(
   content: string,
   secret: number,
   password: string | null,
-  callback: ((success: boolean) => {})) 
+  callback: ((success: boolean, err: any | null) => {})) 
 {
   let s = new SecretNumber(secret)  
   let modifyDate = new DateString(null, new Date())
   connection.query(
-    `UPDATE board SET title = ${title}, content = ${content}, secret = ${s.getSecret()}, password = ${password}, modifyDate = ${modifyDate.getDateString()} WHERE boardId = ${boardId}`,
+    `UPDATE board SET title = '${title}', content = '${content}', secret = '${s.getSecret()}', password = '${password}', modifyDate = '${modifyDate.getDateString()}' WHERE boardId = ${boardId}`,
     (err: any, rows: any, fields: any) => {
       if(err) {
-        callback(false)
-      } else {
-        callback(true)
+        callback(false, err)
+        return
       }
+      callback(true, null)
     }
   )
 }
@@ -101,18 +101,20 @@ function insertBoardItem(
   boardItem: BoardItem,
   callback: (success: boolean) => {}
 ) {
-  let userId = boardItem.boardId
-  if(userId == null) {
+  let userId = boardItem.createUser?.id
+  if(userId == null || userId == undefined) {
     callback(false)
   } else {
+    const q = `INSERT INTO cooperation.board (title, content, creationDate, modifyDate, password, secret, createUserId) VALUES ('${boardItem.title}', '${boardItem.content}', '${boardItem.creationDate.getDateString()}', '${boardItem.modifyDate.getDateString()}', '${boardItem.password}', '${boardItem.secret.getSecret()}', '${userId}');`
+    console.log(q)
     connection.query (
-      `INSERT INTO cooperation.board (title, content, creationDate, modifyDate, password, secret, crearteUserId) VALUES (${boardItem.title}, ${boardItem.content}, ${boardItem.creationDate.getDateString()}, ${boardItem.modifyDate.getDateString()}, ${boardItem.password}, ${boardItem.secret.getSecret()}, ${userId});`,
+      q,
       (err: any, rows: any, fields: any) => {
         if(err) {
-        callback(false)
-        } else {
-          callback(true)
+          callback(false)
+          return
         }
+        callback(true)
       }
     )
   }
@@ -126,10 +128,10 @@ function deleteBoardItem(
     `delete from board where boardId = ${boardId}`,
     (err: any, rows: any, fields: any) => {
       if(err) {
-      callback(false)
-      } else {
-        callback(true)
+        callback(false)
+        return
       }
+      callback(true)
     }
   )
 }
@@ -145,9 +147,9 @@ function insertComment(
       if(err) {
         log(err)
         callback(false)
-      } else {
-        callback(true)
+        return
       }
+      callback(true)
     }
   )
 }
@@ -161,9 +163,9 @@ function deleteComment(
     (err: any, rows: any, fields: any) => {
       if(err) {
         callback(false)
-      } else {
-        callback(true)
+        return
       }
+      callback(true)
     }
   )
 }

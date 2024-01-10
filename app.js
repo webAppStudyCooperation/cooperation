@@ -2,25 +2,38 @@ var createError = require("http-errors");
 var express = require("express");
 var path = require("path");
 var cookieParser = require("cookie-parser");
-var logger = require("morgan");
+// var logger = require("morgan");
 
 // router변수 정의
 var indexRouter = require("./routes/index");
 var apiRouter = require("./routes/boardApi.ts");
 
+var bodyParser = require('body-parser');
 var app = express();
+app.use(bodyParser.urlencoded({ extended: false }));
 
 // post요청받을때 body 파싱을 위함
 app.use(express.json()); 
 app.use(express.urlencoded({ extended: false }));
 
+// 모든 요청에 대한 로그를 찍기 위함
+app.use((req, res, next) => {
+  console.log("===-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
+  console.log(req.method)
+  console.log(req.url)
+  console.log(req.body)
+  console.log('Time:', Date.now());
+  console.log("===-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
+  next();
+})
+
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 
-app.use(logger("dev"));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+// app.use(logger("dev"));
+// app.use(express.json());
+// app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
