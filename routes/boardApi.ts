@@ -12,7 +12,7 @@ router.get(
   "/boards",
   function (req: Request, res: Response, next: NextFunction) {
     db.getAllBoard((rows: BoardItem[]) => {
-      log(rows)
+      log(rows);
       res.status(200).json(rows);
     });
   }
@@ -22,12 +22,12 @@ router.get(
 router.get(
   "/boards/comments",
   function (req: Request, res: Response, next: NextFunction) {
-    let boardId = req.query.boardId
+    let boardId = req.query.boardId;
     db.getCommentsByBoardId(boardId, (rows: BoardComment[]) => {
       res.status(200).json(rows);
     });
   }
-)
+);
 
 // router.post(
 //   "/addBoard",
