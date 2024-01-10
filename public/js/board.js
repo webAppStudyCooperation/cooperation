@@ -1,56 +1,7 @@
 const board = document.getElementById("board");
 let boardFlag = false;
 const mainContentElem = document.getElementById("mainContent");
-let dataObj;
 import { baseURL } from "./config.js";
-// const localURL = "http://localhost:3000/";
-// const baseURL = localURL;
-// import baseURL = require("./config");
-// const baseURL = require("./config");
-console.log("whyrano");
-//DB에 저장되어있는 글 목록 전부 나열
-/* test feed 리스트 */
-const testDummy = [
-    { id: 1, content: "1" },
-    { id: 2, content: "2" },
-    { id: 3, content: "3" },
-];
-const testComment = [
-    { boardId: "1", content: "댓글 1" },
-    { boardId: "2", content: "댓글 2" },
-    { boardId: "3", content: "댓글 3" },
-];
-// vanila.js에서 react state
-// fetch 해서 온 데이터
-// 변화 생기면 다시 POST로 업데이트
-// 전역변수로 dataList 선언
-fetch(baseURL + "api/boards").then((response) => response.json().then((data) => {
-    console.log(data);
-}));
-// 객체
-// // 서버 형식 ->UI
-// class singleFeedForUI {
-//   // constructor(obj: singleFeed) {
-//   //   boardID: obj.boardId;
-//   //   title: String: obj.title;
-//   //   content: String: obj.content;
-//   //   creationDate: String: obj.boardId;
-//   //   modifyDate: String: obj.boardId;
-//   //   password: String: obj.boardId;
-//   //   secret: String: obj.boardId;
-//   //   userId: String: obj.boardId;
-//   // }
-//   constructor(obj: singleFeed) {
-//     boardID: String = obj.boardId;
-//     title: String = obj.title;
-//     content: String: obj.content;
-//     creationDate: String: obj.boardId;
-//     modifyDate: String: obj.boardId;
-//     password: String: obj.boardId;
-//     secret: String: obj.boardId;
-//     userId: String: obj.boardId;
-//   }
-// }
 //해당 게시글의 댓글 생성
 function createComment(DBcommentList) {
     const commentList = document.createElement("div");
@@ -59,10 +10,11 @@ function createComment(DBcommentList) {
         const comment = document.createElement("div");
         const commentID = document.createElement("span");
         const commentContent = document.createElement("span");
+        const commentUser = document.createElement("span");
         comment.className = "sigleComment";
         commentID.className = "CommentID";
-        commentContent.className = "CommentContetn";
-        commentID.innerText = DBcommentList[i].boardId;
+        commentContent.className = "CommentContent";
+        commentID.innerText = DBcommentList[i].commentId.toString();
         commentContent.innerText = DBcommentList[i].content;
         comment.appendChild(commentID);
         comment.appendChild(commentContent);
@@ -71,75 +23,129 @@ function createComment(DBcommentList) {
     return commentList;
 }
 /* single Feed, 토글 버튼, 댓글 */
-const FeedState = {
-    CLOSE: "close",
-    OPEN: "open",
-};
+// const FeedState = {
+//   CLOSE: "close",
+//   OPEN: "open",
+// };
+class FeedManager {
+    constructor() {
+        this.data = [];
+        this.feedList = [];
+        this.setData();
+    }
+    setData() {
+        // startLoading
+        this.getDataList().then((d) => {
+            this.data = d;
+            while (this.feedList.length > 0) {
+                this.feedList.pop();
+            }
+            d.forEach((boardItem) => {
+                this.feedList.push(new Feed(boardItem, boardItem.content, this.getComment(boardItem.boardId)));
+            });
+        });
+        // endLoding
+    }
+    getComment(boardId) {
+        return (fetch(baseURL + `api/boards/comments?boardId=${boardId}`)
+            .then((response) => response.json().then((json) => {
+            return json;
+        }))
+            // data는 함수이다.
+            .catch((error) => console.error(error)));
+    }
+    getDataList() {
+        // let data: Promise<BoardItem>;
+        return (fetch(baseURL + "api/boards")
+            .then((response) => response.json().then((json) => {
+            return json;
+        }))
+            // data는 함수이다.
+            .catch((error) => console.error(error)));
+    }
+    getFeedAt(index) {
+        return this.feedList[index];
+    }
+    getFeeds() {
+        return this.feedList;
+    }
+}
+const feedManager = new FeedManager();
+// 하나의 피드 -> 하나의 boardItem 정보들로 구성
 class Feed {
-    constructor(content) {
-        this.commentList = createComment(testComment);
-        const feed = document.createElement("div");
-        feed.innerText = content;
+    constructor(boardItem, content, commentPromise) {
+        this.needRequestComment = true;
+        this.commentUI = document.createElement("div");
+        this.boardItem = boardItem;
+        this.commentPromise = commentPromise;
+        this.feed = document.createElement("div");
+        this.feed.innerText = content;
         //삭제 버튼
-        const removeBtn = document.createElement("button");
-        removeBtn.innerText = "remove";
-        removeBtn.addEventListener("click", this.removeListner);
+        this.removeBtn = document.createElement("button");
+        this.removeBtn.innerText = "remove";
+        this.removeBtn.addEventListener("click", this.removeListner);
         //수정버튼
-        const editBtn = document.createElement("button");
-        editBtn.innerText = "edit";
+        this.editBtn = document.createElement("button");
+        this.editBtn.innerText = "edit";
         //토글 버튼
-        const toggleBtn = document.createElement("button");
-        toggleBtn.innerText = "open";
-        toggleBtn.addEventListener("click", (event) => this.buttonClicked(event, this.commentList));
-        // toggleBtn.addEventListener("click", this.getListener(this.commentList));
-        feed.appendChild(removeBtn);
-        feed.appendChild(editBtn);
-        feed.appendChild(toggleBtn);
-        mainContentElem === null || mainContentElem === void 0 ? void 0 : mainContentElem.appendChild(feed);
+        this.toggleBtn = document.createElement("button");
+        this.toggleBtn.innerText = "open";
+        this.toggleBtn.addEventListener("click", (event) => {
+            this.toggleClicked(event);
+        });
+        this.feed.appendChild(this.removeBtn);
+        this.feed.appendChild(this.editBtn);
+        this.feed.appendChild(this.toggleBtn);
+    }
+    /*HTMLDivElement인 feed return */
+    returnSingle() {
+        return this.feed;
     }
     /*버튼 toggle */
-    buttonClicked(event, commentList) {
-        // const target = event.target as HTMLElement;
-        const target = event.target;
-        console.log(typeof target);
-        // if (typeof target == HTMLElement) {
-        //   let targetInnerText: string = target.innerText;
-        //   let targetParentNode = target.parentNode;
-        //   if (targetInnerText === "open") {
-        //     targetInnerText = "close";
-        //     targetParentNode?.appendChild(commentList);
-        //   } else {
-        //     (event.target as HTMLElement).innerText = "open";
-        //     targetParentNode?.removeChild(commentList);
-        //   }
-        // }
+    toggleClicked(event) {
+        // let targetParentNode = this.toggleBtn.parentNode;
+        if (this.toggleBtn.innerText === "open") {
+            this.addComment();
+        }
+        else {
+            this.removeComent();
+        }
     }
-    // getListener(commentList: HTMLDivElement) {
-    //   return function (event: Event) {
-    //     if (event.target.innerText === "open") {
-    //       event.target.innerText = "close";
-    //       event.target.parentNode.appendChild(commentList);
-    //     } else {
-    //       event.target.innerText = "open";
-    //       event.target.parentNode.removeChild(commentList);
-    //     }
-    //   };
-    // }
+    addComment() {
+        var _a;
+        if (this.needRequestComment) {
+            this.commentPromise.then((d) => {
+                var _a;
+                d.forEach((elem) => {
+                    this.boardItem.comments.push(elem);
+                    console.log(elem);
+                });
+                this.toggleBtn.innerText = "close";
+                this.commentUI = createComment(this.boardItem.comments);
+                (_a = this.toggleBtn.parentNode) === null || _a === void 0 ? void 0 : _a.appendChild(this.commentUI);
+                this.needRequestComment = false;
+            });
+        }
+        else {
+            this.toggleBtn.innerText = "close";
+            let commentUI = createComment(this.boardItem.comments);
+            (_a = this.toggleBtn.parentNode) === null || _a === void 0 ? void 0 : _a.appendChild(this.commentUI);
+        }
+    }
+    removeComent() {
+        var _a;
+        this.toggleBtn.innerText = "open";
+        (_a = this.toggleBtn.parentNode) === null || _a === void 0 ? void 0 : _a.removeChild(this.commentUI);
+    }
     removeListner() {
         //DB 업데이트
     }
     editListner() { }
 }
-function showBoardFeed() {
-    if (!boardFlag) {
-        for (let i = 0; i < testDummy.length; i++) {
-            const singleFeed = new Feed(testDummy[i].content);
-        }
-        boardFlag = true;
-    }
-    else {
-    }
+/**mainContent에 feedList mainContent에 붙임 */
+function setFeedAtContent() {
+    return feedManager
+        .getFeeds()
+        .forEach((e) => mainContentElem === null || mainContentElem === void 0 ? void 0 : mainContentElem.appendChild(e.returnSingle()));
 }
-// 게시판 글 불러오기
-board === null || board === void 0 ? void 0 : board.addEventListener("click", showBoardFeed);
-board === null || board === void 0 ? void 0 : board.addEventListener("click", () => console.log("It is working"));
+board === null || board === void 0 ? void 0 : board.addEventListener("click", setFeedAtContent);

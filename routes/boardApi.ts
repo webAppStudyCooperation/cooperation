@@ -21,12 +21,12 @@ router.get(
 router.get(
   "/boards/comments",
   function (req: Request, res: Response, next: NextFunction) {
-    let boardId = req.query.boardId
+    let boardId = req.query.boardId;
     db.getCommentsByBoardId(boardId, (rows: BoardComment[]) => {
       res.status(200).json(rows);
     });
   }
-)
+);
 
 /**
  * 게시물 정보를 수정하는 post api, 아래의 정보를 body에 넣어야 함
