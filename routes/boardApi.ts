@@ -29,23 +29,18 @@ router.get(
 )
 
 /**
- * 게시물 정보를 수정하는 post api, 아래의 정보를 body에 넣어야 함
-  boardId: number,
-  title: string,
-  content: string,
-  secret: number,
-  password: string | null,
+ * 게시물 정보를 수정하는 put api, body에 boardItem 넣을 것
  */
 router.put(
   "/boards/update",
   function (req: Request, res: Response, next: NextFunction) {
-    let body = req.body
+    let boardItem : BoardItem= req.body.boardItem
     db.updateBoardItem(
-      body.boardId,
-      body.title,
-      body.content,
-      body.secret,
-      body.password,
+      boardItem.boardId,
+      boardItem.title,
+      boardItem.content,
+      boardItem.secret,
+      boardItem.password,
       (success: boolean) => {
         if(success) {
           res.status(200)
@@ -57,11 +52,17 @@ router.put(
   }
 )
 
+
+/**
+ * BoardItem을 생성하는 api
+ * BoardItem을 인자로 넣는다.
+ * boardId는 아무 값이나 넣어도 무관하다. (db에서 autoIncrement로 관리함)
+ */
 router.post(
   "/boards/add",
   function (req: Request, res: Response, next: NextFunction) {
     try {
-      let boardItem = req.body as BoardItem
+      let boardItem: BoardItem = req.body.boardItem
       if(boardItem == null || boardItem == undefined) {
         throw Error
       }  
@@ -81,11 +82,15 @@ router.post(
   }
 )
 
+/**
+ * BoardItem을 삭제하는 api
+ * boardId를 인자로 받는다
+ */
 router.delete(
   "boards/delete",
   function (req: Request, res: Response, next: NextFunction) {
     try {
-      let boardId = req.body.boardId as number
+      let boardId: number = req.body.boardId
       if(boardId == null || boardId == undefined) {
         throw Error
       }   
@@ -105,14 +110,12 @@ router.delete(
   }
 )
 
+/**댓글 생성 -> body에 boardComment넣어서 보낼 것 */
 router.post(
   "/boards/comment/add",
   function (req: Request, res: Response, next: NextFunction) {
     try {
-      let comment = req.body as BoardComment 
-      if(comment == null || comment == undefined) {
-        throw Error
-      }   
+      let comment: BoardComment = req.body.boardComment 
       db.insertComment(
         comment,
         (success: boolean) => {
@@ -129,11 +132,15 @@ router.post(
   }
 )
 
+/**
+ * 댓글 삭제 api
+ * commentId를 body에 넣어 보낸다.
+ */
 router.delete(
   "boards/comment/delete",
   function (req: Request, res: Response, next: NextFunction) {
     try {
-      let boardId = req.body.boardId   
+      let boardId: number = req.body.boardId   
       db.deleteComment(
         boardId,
         (success: boolean) => {
