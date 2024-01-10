@@ -3,9 +3,9 @@ import { Request, Response, NextFunction } from "express";
 var express = require("express");
 var router = express.Router();
 const db = require("./db/db"); // db 모듈 추가
-import { BoardItem } from "./models/boards";
-import { log } from "console";
+import { BoardItem, DateString } from "./models/boards";
 import { BoardComment } from "./models/comments";
+import { User } from "./models/user";
 
 // 모든 게시물 목록을 줌
 router.get(
@@ -30,22 +30,37 @@ router.get(
 
 /**
  * 게시물 정보를 수정하는 put api, body에 boardItem 넣을 것
+ *  * body: {
+        "boardId": 0,
+        "title": "testTitle",
+        "content": "dsfdsfdsfsdf",
+        "creationDate": "2021:07:29 00:00:00",
+        "modifyDate": "2021:07:29 00:00:00",
+        "password": null,
+        "secret": 0,
+        "createUser": {
+            "id": "test",
+            "name": "testName",
+            "nickName": "testNickNAme"
+        },
+        "comments": []
+    }
  */
 router.put(
   "/boards/update",
   function (req: Request, res: Response, next: NextFunction) {
-    let boardItem : BoardItem= req.body.boardItem
+    let b = req.body
     db.updateBoardItem(
-      boardItem.boardId,
-      boardItem.title,
-      boardItem.content,
-      boardItem.secret,
-      boardItem.password,
-      (success: boolean) => {
+      b.boardId,
+      b.title,
+      b.content,
+      b.secret,
+      b.password,
+      (success: boolean, err: any | null) => {
         if(success) {
-          res.status(200)
+          res.status(200).json("{'message': success}")
         } else {
-          res.status(400)
+          res.status(400).json(`{'message': ${err}}`)
         }
       }
     );
@@ -54,30 +69,51 @@ router.put(
 
 
 /**
- * BoardItem을 생성하는 api
- * BoardItem을 인자로 넣는다.
- * boardId는 아무 값이나 넣어도 무관하다. (db에서 autoIncrement로 관리함)
+ * BoardItem 생성 api 아래 형식으로 요청 가능
+ * body: {
+        "boardId": 0,
+        "title": "testTitle",
+        "content": "dsfdsfdsfsdf",
+        "creationDate": "2021:07:29 00:00:00",
+        "modifyDate": "2021:07:29 00:00:00",
+        "password": null,
+        "secret": 0,
+        "createUser": {
+            "id": "test",
+            "name": "testName",
+            "nickName": "testNickNAme"
+        },
+        "comments": []
+    }
  */
 router.post(
   "/boards/add",
   function (req: Request, res: Response, next: NextFunction) {
     try {
-      let boardItem: BoardItem = req.body.boardItem
-      if(boardItem == null || boardItem == undefined) {
-        throw Error
-      }  
+      const b = req.body
+      let boardItem: BoardItem = new BoardItem(
+          0,
+          b.title,
+          b.content,
+          new DateString(b.creationDate, null),
+          new DateString(b.modifyDate, null),
+          b.password,
+          b.secret,
+          b.createUser
+      )
+      console.log(boardItem)
       db.insertBoardItem(
         boardItem,
         (success: boolean) => {
           if(success) {
-            res.status(200)
+            res.status(200).json("{'message': success}")
           } else {
-            res.status(400)
+            res.status(400).json("{'message': fail}")
           }
         }
       )
     } catch {
-      res.status(400)
+      res.status(400).json("{'message': fail}")
     }
   }
 )
@@ -85,9 +121,12 @@ router.post(
 /**
  * BoardItem을 삭제하는 api
  * boardId를 인자로 받는다
+ * "body": {
+ *  "boardId": 1
+ * }
  */
 router.delete(
-  "boards/delete",
+  "/boards/delete",
   function (req: Request, res: Response, next: NextFunction) {
     try {
       let boardId: number = req.body.boardId
@@ -98,14 +137,14 @@ router.delete(
         boardId,
         (success: boolean) => {
           if(success) {
-            res.status(200)
+            res.status(200).json("{'message': success}")
           } else [
-            res.status(400)
+            res.status(400).json("{'message': fail}")
           ]
         }
       )
     } catch {
-      res.status(400)
+      res.status(400).json("{'message': fail}")
     }
   }
 )
@@ -127,7 +166,7 @@ router.post(
         }
       )
     } catch {
-      res.status(400)
+      res.status(400).json("{'message': fail}")
     }  
   }
 )
@@ -135,25 +174,28 @@ router.post(
 /**
  * 댓글 삭제 api
  * commentId를 body에 넣어 보낸다.
+ * "body": {
+ *  "commentId": 12
+ * }
  */
 router.delete(
-  "boards/comment/delete",
+  "/boards/comment/delete",
   function (req: Request, res: Response, next: NextFunction) {
     try {
-      let boardId: number = req.body.boardId   
+      let commentId: number = req.body.commentId
       db.deleteComment(
-        boardId,
+        commentId,
         (success: boolean) => {
           if(success) {
-            res.status(200)
+            res.status(200).json("{'message': success}")
           } else {
-            res.status(400)
+            res.status(400).json("{'message': fail}")
           }
         }
       )
     } catch {
-      res.status(400)
-    }  
+      res.status(400).json("{'message': fail}")
+    }
   }
 )
 

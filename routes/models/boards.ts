@@ -39,16 +39,18 @@ export class DateString {
     }
 
     getDateString(): string | null { 
-        if(this.date == null) {
-            return null
-        } else {
-            return this.date.getFullYear() + ":"
-             + this.date.getMonth + ":"
-             + this.date.getDate + " "
-             + this.date.getHours() + ":"
-             + this.date.getMinutes() + ":"
-             + this.date.getSeconds()
-        }
+        // todo 날짜 파싱 로직 다시 만들기
+        return "2000-01-23 00:00:00"
+        // if(this.date == null) {
+        //     return null
+        // } else {
+        //     return this.date.getFullYear() + "-"
+        //      + this.date.getMonth + "-"
+        //      + this.date.getDate + " "
+        //      + this.date.getHours() + ":"
+        //      + this.date.getMinutes() + ":"
+        //      + this.date.getSeconds()
+        // }
     }
 }
 
