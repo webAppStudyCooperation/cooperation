@@ -106,7 +106,7 @@ function insertBoardItem(
     callback(false)
   } else {
     connection.query (
-      `INSERT INTO cooperation.board (boardId, title, content, creationDate, modifyDate, password, secret, crearteUserId) VALUES (${boardItem.boardId}, ${boardItem.title}, ${boardItem.content}, ${boardItem.creationDate.getDateString()}, ${boardItem.modifyDate.getDateString()}, ${boardItem.password}, ${boardItem.secret.getSecret()}, ${userId});`,
+      `INSERT INTO cooperation.board (title, content, creationDate, modifyDate, password, secret, crearteUserId) VALUES (${boardItem.title}, ${boardItem.content}, ${boardItem.creationDate.getDateString()}, ${boardItem.modifyDate.getDateString()}, ${boardItem.password}, ${boardItem.secret.getSecret()}, ${userId});`,
       (err: any, rows: any, fields: any) => {
         if(err) {
         callback(false)
