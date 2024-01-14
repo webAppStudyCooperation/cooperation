@@ -45,13 +45,15 @@ class FeedManager {
   private data: BoardItem[] = [];
   private feedList: Feed[] = [];
 
-  constructor() {
-    this.setData();
+  constructor(
+    familyId: number
+  ) {
+    this.setData(familyId);
   }
 
-  private setData() {
+  private setData(familyId: number) {
     // startLoading
-    this.getDataList().then((d) => {
+    this.getDataList(familyId).then((d) => {
       this.data = d;
       while (this.feedList.length > 0) {
         this.feedList.pop();
@@ -82,10 +84,12 @@ class FeedManager {
     );
   }
 
-  private getDataList(): Promise<BoardItem[]> {
+  private getDataList(familyId: number): Promise<BoardItem[]> {
     // let data: Promise<BoardItem>;
     return (
-      fetch(baseURL + "api/boards")
+      fetch(baseURL + "api/boards", {
+        body: JSON.stringify({ familyId: familyId })
+      })
         .then((response) =>
           response.json().then((json) => {
             return json;
@@ -111,7 +115,12 @@ class FeedManager {
   //   }
   // }
 }
-const feedManager = new FeedManager();
+
+/** 
+ * 임시로 familyId를 0으로 처리하였다.
+ * 로그인 기능 구현 이후 이부분 로그인된 사용자의 familyId를 값으로 넣어주어야 한다.
+*/
+const feedManager = new FeedManager(0);
 
 // 하나의 피드 -> 하나의 boardItem 정보들로 구성
 class Feed {
