@@ -64,6 +64,7 @@ export class BoardItem {
     secret: SecretNumber
     createUser: User | null
     comments: BoardComment[]
+    familyId: number
 
     constructor(
         boardId: number,
@@ -74,6 +75,7 @@ export class BoardItem {
         password: string | null,
         secret: number,
         createUser: User,
+        familyId: number
     ) {
         this.boardId = boardId
         this.title = title
@@ -84,5 +86,6 @@ export class BoardItem {
         this.secret = new SecretNumber(secret)
         this.createUser = createUser
         this.comments = []
+        this.familyId = familyId
     }
 }

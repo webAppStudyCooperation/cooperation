@@ -6,12 +6,18 @@ const db = require("./db/db"); // db 모듈 추가
 import { BoardItem, DateString } from "./models/boards";
 import { BoardComment } from "./models/comments";
 import { User } from "./models/user";
+import { Family } from "./models/family";
 
-// 모든 게시물 목록을 줌
+/**
+ * "body": {
+ *  "familyId": 유저의 familyId
+ * }
+*/
 router.get(
   "/boards",
   function (req: Request, res: Response, next: NextFunction) {
-    db.getAllBoard((rows: BoardItem[]) => {
+    const familyId: number = req.body.familyId
+    db.getAllBoard(familyId, (rows: BoardItem[]) => {
       res.status(200).json(rows);
     });
   }
@@ -80,7 +86,8 @@ router.put(
         "createUser": {
             "id": "test",
             "name": "testName",
-            "nickName": "testNickNAme"
+            "nickName": "testNickNAme",
+            "familyId": 0
         },
         "comments": []
     }
@@ -98,7 +105,8 @@ router.post(
           new DateString(b.modifyDate, null),
           b.password,
           b.secret,
-          b.createUser
+          b.createUser,
+          b.familyId
       )
       console.log(boardItem)
       db.insertBoardItem(

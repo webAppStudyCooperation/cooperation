@@ -4,6 +4,7 @@ const mysql = require("mysql2");
 import { BoardItem, DateString, SecretNumber } from "../models/boards";
 import { BoardComment } from "../models/comments";
 import { User } from "../models/user";
+import { Family } from "../models/family";
 
 const connection = mysql.createConnection({
   host: "localhost",
@@ -13,9 +14,9 @@ const connection = mysql.createConnection({
   database: "cooperation",
 });
 
-function getAllBoard(callback: (row: BoardItem[]) => {}) {
+function getAllBoard(familyId: number, callback: (row: BoardItem[]) => {}) {
   connection.query(
-    `SELECT * FROM board left join user on board.createUserId = user.userId`,
+    `SELECT * FROM board left join user on board.createUserId = user.userId WHERE board.familyID = ${familyId}`,
     (err: any, rows: any, fields: any) => {
       if (err) {
         throw err;
@@ -23,7 +24,7 @@ function getAllBoard(callback: (row: BoardItem[]) => {}) {
         let result: BoardItem[] = [];
         for (var o in rows) {
           let item = rows[o];
-          let user = new User(item["userId"], item["name"], item["nickname"]);
+          let user = new User(item["userId"], item["name"], item["nickname"], item["familyId"]);
           let boardItem = new BoardItem(
             item["boardId"],
             item["title"],
@@ -32,7 +33,8 @@ function getAllBoard(callback: (row: BoardItem[]) => {}) {
             new DateString(item["modifyDate"], null),
             item["password"],
             item["secret"],
-            user
+            user,
+            item["familyID"]
           );
           result.push(boardItem);
         }
@@ -52,7 +54,7 @@ function getCommentsByBoardId(
       let result: BoardComment[] = [];
       for (var o in rows) {
         let item = rows[o];
-        let user = new User(item["userId"], item["name"], item["nickname"]);
+        let user = new User(item["userId"], item["name"], item["nickname"], item["familyId"]);
         let boardComment = new BoardComment(
           item["boardId"],
           item["idcomment"],
@@ -96,7 +98,7 @@ function insertBoardItem(
   if(userId == null || userId == undefined) {
     callback(false)
   } else {
-    const q = `INSERT INTO cooperation.board (title, content, creationDate, modifyDate, password, secret, createUserId) VALUES ('${boardItem.title}', '${boardItem.content}', '${boardItem.creationDate.getDateString()}', '${boardItem.modifyDate.getDateString()}', '${boardItem.password}', '${boardItem.secret.getSecret()}', '${userId}');`
+    const q = `INSERT INTO cooperation.board (title, content, creationDate, modifyDate, password, secret, createUserId, familyId) VALUES ('${boardItem.title}', '${boardItem.content}', '${boardItem.creationDate.getDateString()}', '${boardItem.modifyDate.getDateString()}', '${boardItem.password}', '${boardItem.secret.getSecret()}', '${userId}', ${boardItem.familyId});`
     console.log(q)
     connection.query (
       q,
@@ -155,6 +157,35 @@ function deleteComment(commentId: number, callback: (success: boolean) => {}) {
   );
 }
 
+function insertFamily(familyId: number, familyName: string, callback : (success: boolean) => {}) {
+  let query = `INSERT INTO cooperation.family (familyId, familyName) VALUES (${familyId}, "${familyName}");`
+  connection.query(
+    query,
+    (err: any, rows: any, fields: any) => {
+      if(err) {
+        callback(false)
+        return
+      }
+      callback(true)
+    }
+  )
+}
+
+function getFamily(familyId: number, callback :(family: Family) => {}) {
+  let q = `Select * From cooperation.family Where familyId = ${familyId}`
+  connection.query(
+    q,
+    (err: any, rows: any, fields: any) => {
+      if(err) {
+        callback(new Family(-1, "no family"))
+        return
+      }
+      callback(new Family(rows[0]["familyId"],rows[0]["familyname"]))
+    }
+  )
+}
+
+
 module.exports = {
   getAllBoard,
   getCommentsByBoardId,
@@ -163,4 +194,6 @@ module.exports = {
   deleteBoardItem,
   insertComment,
   deleteComment,
+  getFamily,
+  insertFamily
 };

@@ -6,7 +6,8 @@ var cookieParser = require("cookie-parser");
 
 // router변수 정의
 var indexRouter = require("./routes/index");
-var apiRouter = require("./routes/boardApi.ts");
+var boardRouter = require("./routes/boardApi.ts");
+var familyRouter = require("./routes/familyApi.ts");
 
 var bodyParser = require('body-parser');
 var app = express();
@@ -40,7 +41,8 @@ app.use(express.static(path.join(__dirname, "public")));
 // router 경로 연결
 // https://ip:port/~~~
 app.use("/", indexRouter);
-app.use("/api", apiRouter);
+app.use("/api", boardRouter);
+app.use("/family", familyRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
