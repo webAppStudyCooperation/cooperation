@@ -87,6 +87,10 @@ class FeedManager {
     return (
       fetch(baseURL + "api/boards", {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
         body: JSON.stringify({ familyId: familyId }),
       })
         .then((response) =>
