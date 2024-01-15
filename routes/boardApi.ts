@@ -13,7 +13,7 @@ import { Family } from "./models/family";
  *  "familyId": 유저의 familyId
  * }
 */
-router.get(
+router.post(
   "/boards",
   function (req: Request, res: Response, next: NextFunction) {
     const familyId: number = req.body.familyId
