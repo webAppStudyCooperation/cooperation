@@ -118,7 +118,7 @@ class FeedManager {
 
 /** 
  * 임시로 familyId를 0으로 처리하였다.
- * 로그인 기능 구현 이후 이부분 로그인된 사용자의 familyId를 값으로 넣어주어야 한다.
+ * 로그인 기능 구현 이후 이부분 로그인된 사용자의 familyId를 값으로 넣어주어야
 */
 const feedManager = new FeedManager(0);
 

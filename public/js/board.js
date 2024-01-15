@@ -28,14 +28,14 @@ function createComment(DBcommentList) {
 //   OPEN: "open",
 // };
 class FeedManager {
-    constructor() {
+    constructor(familyId) {
         this.data = [];
         this.feedList = [];
-        this.setData();
+        this.setData(familyId);
     }
-    setData() {
+    setData(familyId) {
         // startLoading
-        this.getDataList().then((d) => {
+        this.getDataList(familyId).then((d) => {
             this.data = d;
             while (this.feedList.length > 0) {
                 this.feedList.pop();
@@ -54,9 +54,11 @@ class FeedManager {
             // data는 함수이다.
             .catch((error) => console.error(error)));
     }
-    getDataList() {
+    getDataList(familyId) {
         // let data: Promise<BoardItem>;
-        return (fetch(baseURL + "api/boards")
+        return (fetch(baseURL + "api/boards", {
+            body: JSON.stringify({ familyId: familyId })
+        })
             .then((response) => response.json().then((json) => {
             return json;
         }))
@@ -70,7 +72,11 @@ class FeedManager {
         return this.feedList;
     }
 }
-const feedManager = new FeedManager();
+/**
+ * 임시로 familyId를 0으로 처리하였다.
+ * 로그인 기능 구현 이후 이부분 로그인된 사용자의 familyId를 값으로 넣어주어야
+*/
+const feedManager = new FeedManager(0);
 // 하나의 피드 -> 하나의 boardItem 정보들로 구성
 class Feed {
     constructor(boardItem, content, commentPromise) {
