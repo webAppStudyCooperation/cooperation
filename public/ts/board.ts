@@ -249,6 +249,7 @@ class Feed {
     // commentId 0부터 시작하는지 확인할것
 
     let data: BoardComment = new BoardComment(
+      this.boardItem.boardId,
       this.boardItem.comments.length + 1,
       this.input.value,
       testUser

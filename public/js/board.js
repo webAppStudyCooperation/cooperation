@@ -168,12 +168,12 @@ class Feed {
     submitValue(e) {
         console.log(this.input.value);
         /**임시 유저 정보 , 로그인 구현 후 삭제할 것 */
-        const testUser = new User("Test1", "TESTNAME", "TESTNICKNAME");
+        const testUser = new User("Test1", "TESTNAME", "TESTNICKNAME", 0);
         /**댓글 생성 -> body에 boardComment넣어서 보낼 것 */
         // 임시
         // 현재 user에 대한 정보가 없는데....
         // commentId 0부터 시작하는지 확인할것
-        let data = new BoardComment(this.boardItem.comments.length + 1, this.input.value, testUser);
+        let data = new BoardComment(this.boardItem.boardId, this.boardItem.comments.length + 1, this.input.value, testUser);
         fetch(baseURL + `api/boards/comment/add`, {
             method: "POST",
             headers: {
