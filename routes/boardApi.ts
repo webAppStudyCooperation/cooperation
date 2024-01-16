@@ -168,18 +168,13 @@ router.post(
   "/boards/comment/add",
   function (req: Request, res: Response, next: NextFunction) {
     try {
-      const b = req.body
+      const b = req.body;
       const comment: BoardComment = new BoardComment(
         b.boardId,
         -1,
         b.content,
-        new User(
-          b.user.id,
-          b.user.name,
-          b.user.nickName,
-          b.user.familyId
-        )
-      )
+        new User(b.user.id, b.user.name, b.user.nickName, b.user.familyId)
+      );
       db.insertComment(comment, (success: boolean) => {
         if (success) {
           res.status(200).json("message: success");

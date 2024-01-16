@@ -241,7 +241,7 @@ class Feed {
     console.log(this.input.value);
 
     /**임시 유저 정보 , 로그인 구현 후 삭제할 것 */
-    const testUser = new User("Test1", "TESTNAME", "TESTNICKNAME");
+    const testUser = new User("Test1", "TESTNAME", "TESTNICKNAME", 0);
 
     /**댓글 생성 -> body에 boardComment넣어서 보낼 것 */
     // 임시
