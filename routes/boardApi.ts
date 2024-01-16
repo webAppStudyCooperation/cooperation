@@ -13,11 +13,11 @@ import { log } from "console";
  * "body": {
  *  "familyId": 유저의 familyId
  * }
-*/
+ */
 router.post(
   "/boards",
   function (req: Request, res: Response, next: NextFunction) {
-    const familyId: number = req.body.familyId
+    const familyId: number = req.body.familyId;
     db.getAllBoard(familyId, (rows: BoardItem[]) => {
       res.status(200).json(rows);
     });
@@ -57,7 +57,7 @@ router.get(
 router.put(
   "/boards/update",
   function (req: Request, res: Response, next: NextFunction) {
-    let b = req.body
+    let b = req.body;
     db.updateBoardItem(
       b.boardId,
       b.title,
@@ -65,10 +65,10 @@ router.put(
       b.secret,
       b.password,
       (success: boolean, err: any | null) => {
-        if(success) {
-          res.status(200).json("{'message': success}")
+        if (success) {
+          res.status(200).json("{'message': success}");
         } else {
-          res.status(400).json(`{'message': ${err}}`)
+          res.status(400).json(`{'message': ${err}}`);
         }
       }
     );
@@ -98,31 +98,28 @@ router.post(
   "/boards/add",
   function (req: Request, res: Response, next: NextFunction) {
     try {
-      const b = req.body
+      const b = req.body;
       let boardItem: BoardItem = new BoardItem(
-          0,
-          b.title,
-          b.content,
-          new DateString(b.creationDate, null),
-          new DateString(b.modifyDate, null),
-          b.password,
-          b.secret,
-          b.createUser,
-          b.familyId
-      )
-      console.log(boardItem)
-      db.insertBoardItem(
-        boardItem,
-        (success: boolean) => {
-          if(success) {
-            res.status(200).json("{'message': success}")
-          } else {
-            res.status(400).json("{'message': fail}")
-          }
-        }
+        0,
+        b.title,
+        b.content,
+        new DateString(b.creationDate, null),
+        new DateString(b.modifyDate, null),
+        b.password,
+        b.secret,
+        b.createUser,
+        b.familyId
       );
+      console.log(boardItem);
+      db.insertBoardItem(boardItem, (success: boolean) => {
+        if (success) {
+          res.status(200).json("{'message': success}");
+        } else {
+          res.status(400).json("{'message': fail}");
+        }
+      });
     } catch {
-      res.status(400).json("{'message': fail}")
+      res.status(400).json("{'message': fail}");
     }
   }
 );
@@ -138,22 +135,17 @@ router.delete(
   "/boards/delete",
   function (req: Request, res: Response, next: NextFunction) {
     try {
-      let boardId: number = req.body.boardId
-      if(boardId == null || boardId == undefined) {
-        throw Error
-      }   
-      db.deleteBoardItem(
-        boardId,
-        (success: boolean) => {
-          if(success) {
-            res.status(200).json("{'message': success}")
-          } else [
-            res.status(400).json("{'message': fail}")
-          ]
-        }
-      )
+      let boardId: number = req.body.boardId;
+      if (boardId == null || boardId == undefined) {
+        throw Error;
+      }
+      db.deleteBoardItem(boardId, (success: boolean) => {
+        if (success) {
+          res.status(200).json("{'message': success}");
+        } else [res.status(400).json("{'message': fail}")];
+      });
     } catch {
-      res.status(400).json("{'message': fail}")
+      res.status(400).json("{'message': fail}");
     }
   }
 );
@@ -196,8 +188,8 @@ router.post(
         }
       });
     } catch {
-      res.status(400).json("{'message': fail}")
-    }  
+      res.status(400).json("{'message': fail}");
+    }
   }
 );
 
@@ -212,19 +204,16 @@ router.delete(
   "/boards/comment/delete",
   function (req: Request, res: Response, next: NextFunction) {
     try {
-      let commentId: number = req.body.commentId
-      db.deleteComment(
-        commentId,
-        (success: boolean) => {
-          if(success) {
-            res.status(200).json("{'message': success}")
-          } else {
-            res.status(400).json("{'message': fail}")
-          }
+      let commentId: number = req.body.commentId;
+      db.deleteComment(commentId, (success: boolean) => {
+        if (success) {
+          res.status(200).json("{'message': success}");
+        } else {
+          res.status(400).json("{'message': fail}");
         }
-      );
+      });
     } catch {
-      res.status(400).json("{'message': fail}")
+      res.status(400).json("{'message': fail}");
     }
   }
 );
