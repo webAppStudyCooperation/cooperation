@@ -130,7 +130,7 @@ function insertComment(
   boardComment: BoardComment,
   callback: (success: boolean) => {}
 ) {
-  let query = `INSERT INTO cooperation.comment (idcomment, content, userId, boardId) VALUES (${boardComment.commentId}, "${boardComment.content}", "${boardComment.user.id}", ${boardComment.boardId});`
+  let query = `INSERT INTO cooperation.comment (content, userId, boardId) VALUES ("${boardComment.content}", "${boardComment.user.id}", ${boardComment.boardId});`
   connection.query (
     query,
     (err: any, rows: any, fields: any) => {

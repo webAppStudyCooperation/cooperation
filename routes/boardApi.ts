@@ -7,6 +7,7 @@ import { BoardItem, DateString } from "./models/boards";
 import { BoardComment } from "./models/comments";
 import { User } from "./models/user";
 import { Family } from "./models/family";
+import { log } from "console";
 
 /**
  * "body": {
@@ -24,6 +25,7 @@ router.post(
 );
 
 // 쿼리로 게시물 아이디를 받아 해당 게시물의 모든 댓글을 줌
+/**url 뒤에 ?query로  boardId=x 붙이기*/
 router.get(
   "/boards/comments",
   function (req: Request, res: Response, next: NextFunction) {
@@ -157,11 +159,35 @@ router.delete(
 );
 
 /**댓글 생성 -> body에 boardComment넣어서 보낼 것 */
+/***
+ * {
+    "boardId": 10,
+    "commentId": 10,
+    "content": "sdfsdfjlksjfksjflkjsjdflsjdlfkjs",
+    "user": {
+        "id": "test",
+        "name": "testname",
+        "nickName": "sdfsdfsdf",
+        "familyId": 0
+    }
+}
+ */
 router.post(
   "/boards/comment/add",
   function (req: Request, res: Response, next: NextFunction) {
     try {
-      let comment: BoardComment = req.body.boardComment;
+      const b = req.body
+      const comment: BoardComment = new BoardComment(
+        b.boardId,
+        -1,
+        b.content,
+        new User(
+          b.user.id,
+          b.user.name,
+          b.user.nickName,
+          b.user.familyId
+        )
+      )
       db.insertComment(comment, (success: boolean) => {
         if (success) {
           res.status(200).json("message: success");
