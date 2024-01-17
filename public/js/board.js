@@ -138,7 +138,7 @@ class Feed {
         this.inputBtn.innerText = "등록";
         this.inputForm.appendChild(this.input);
         this.inputForm.appendChild(this.inputBtn);
-        this.inputForm.addEventListener("click", (event) => this.submitValue(event));
+        this.inputBtn.addEventListener("click", (event) => this.submitValue(event));
         this.feed.appendChild(this.removeBtn);
         this.feed.appendChild(this.editBtn);
         this.feed.appendChild(this.toggleBtn);
