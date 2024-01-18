@@ -1,28 +1,87 @@
 const board = document.getElementById("board");
-let boardFlag = false;
 const mainContentElem = document.getElementById("mainContent");
 import { baseURL } from "./config.js";
-import { BoardComment } from "./models/comments.js";
-import { User } from "./models/user.js";
-/** 게시글 추가 버튼 생성 및  기능*/
+import { BoardItem } from "./models/back/boards.js";
+import { BoardComment } from "./models/back/comments.js";
+import { User } from "./models/back/user.js";
+import { DateString } from "./models/back/boards.js";
+// import { inputFeedForm } from "../frontModel/inputFeedForm";
+/**임시 유저 정보 , 로그인 구현 후 삭제할 것 */
+const testUser = new User("Test1", "TESTNAME", "TESTNICKNAME", 0);
+class InputFeedForm {
+    /** 피드 작성 폼 생성 */
+    constructor() {
+        this.inputFeedForm = document.createElement("form");
+        this.inputContent = document.createElement("input");
+        this.inputTitle = document.createElement("input");
+        this.innerAddBtn = document.createElement("button");
+        this.innerAddBtn.innerText = "피드 등록";
+        this.inputFeedForm.appendChild(this.inputContent);
+        this.inputFeedForm.appendChild(this.inputTitle);
+        this.inputFeedForm.appendChild(this.innerAddBtn);
+        this.innerAddBtn.addEventListener("click", (e) => this.submitNewFeed(e, this.inputContent, this.inputTitle));
+    }
+    returnForm() {
+        return this.inputFeedForm;
+    }
+    show() {
+        mainContentElem === null || mainContentElem === void 0 ? void 0 : mainContentElem.appendChild(this.returnForm());
+    }
+    hide() {
+        mainContentElem === null || mainContentElem === void 0 ? void 0 : mainContentElem.removeChild(this.returnForm());
+    }
+    /**피드 등록*/
+    submitNewFeed(e, inputContent, inputTitle) {
+        e.preventDefault();
+        this.hide();
+        this.postNewFeed();
+        this.inputFeedForm.reset();
+    }
+    /**
+   * BoardItem 생성 api 아래 형식으로 요청 가능
+   * body: {
+          "boardId": 0,
+          "title": "testTitle",
+          "content": "dsfdsfdsfsdf",
+          "creationDate": "2021:07:29 00:00:00",
+          "modifyDate": "2021:07:29 00:00:00",
+          "password": null,
+          "secret": 0,
+          "createUser": {
+              "id": "test",
+              "name": "testName",
+              "nickName": "testNickNAme",
+              "familyId": 0
+          },
+          "comments": []
+      }
+   */
+    /**피드 등록시 서버에게 post 요청 */
+    postNewFeed() {
+        //modifyDate 후에 구현 예정
+        let testDate = new DateString(null, new Date());
+        // 임시 testData, 로그인 구현 이후 수정 필요
+        // 다른 폴더로 클래스 분리했을시 boardId feedmanager 접근 못함
+        let testData = new BoardItem(feedManager.getFeedNumber() + 1, this.inputTitle.value, this.inputContent.value, testDate, testDate, null, 0, testUser, 0);
+        console.log(testData);
+        let data = testData;
+        fetch(baseURL + "api/boards", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        });
+    }
+}
+const inputFeedForm = new InputFeedForm();
+/** 피드 추가 버튼 생성 및  기능*/
 const addBtn = document.createElement("button");
-mainContentElem === null || mainContentElem === void 0 ? void 0 : mainContentElem.appendChild(addBtn);
-/**게시글 추가 버튼 */
-addBtn.innerText = "게시글 추가";
-addBtn.addEventListener("click", showCreateFeed);
-function showCreateFeed() {
-    const showFeedForm = document.createElement("div");
-    const inputFeed = document.createElement("input");
-    const addBtn = document.createElement("button");
-    addBtn.addEventListener("click", () => {
-        console.log("youClickedInsideBtn");
-    });
-    showFeedForm.appendChild(inputFeed);
-    showFeedForm.appendChild(addBtn);
-}
-function createFeed() {
-    console.log("게시글 작성 후 추가  ");
-}
+addBtn.innerText = "피드 추가:+";
+addBtn.addEventListener("click", () => {
+    inputFeedForm.show();
+});
+// 작동 O
 /**해당 게시글의 댓글 생성*/
 function createComment(DBcommentList) {
     const commentList = document.createElement("div");
@@ -99,16 +158,18 @@ class FeedManager {
     getFeeds() {
         return this.feedList;
     }
+    getFeedNumber() {
+        return this.feedList.length;
+    }
 }
 /**
  * 임시로 familyId를 0으로 처리하였다.
- * 로그인 기능 구현 이후 이부분 로그인된 사용자의 familyId를 값으로 넣어주어야
+ * 로그인 기능 구현 이후 이부분 로그인된 사용자의 familyId를 값으로 넣어주어야 한다.
  */
 const feedManager = new FeedManager(0);
 // 하나의 피드 -> 하나의 boardItem 정보들로 구성
 class Feed {
     constructor(boardItem, content, commentPromise) {
-        this.inputForm = document.createElement("div");
         this.needRequestComment = true;
         this.commentUI = document.createElement("div");
         this.boardItem = boardItem;
@@ -131,8 +192,8 @@ class Feed {
         this.toggleBtn.addEventListener("click", (event) => {
             this.toggleListner(event);
         });
-        // this.makeComment();
-        this.inputForm = document.createElement("div");
+        /**댓글 입력, 등록 버튼  만들기 -> inputForm 생성  */
+        this.inputForm = document.createElement("form");
         this.input = document.createElement("input");
         this.inputBtn = document.createElement("button");
         this.inputBtn.innerText = "등록";
@@ -142,7 +203,7 @@ class Feed {
         this.feed.appendChild(this.removeBtn);
         this.feed.appendChild(this.editBtn);
         this.feed.appendChild(this.toggleBtn);
-        this.feed.appendChild(this.inputForm);
+        // this.commentUI.appendChild(this.inputForm);
     }
     /*HTMLDivElement인 feed return */
     returnSingle() {
@@ -151,24 +212,35 @@ class Feed {
     /*버튼 toggle */
     toggleListner(event) {
         // let targetParentNode = this.toggleBtn.parentNode;
+        var _a;
         if (this.toggleBtn.innerText === "open") {
             this.showComment();
         }
         else {
             this.hideComent();
+            (_a = this.toggleBtn.parentNode) === null || _a === void 0 ? void 0 : _a.removeChild(this.inputForm);
         }
     }
-    /**댓글 입력, 등록 버튼  만들기 -> inputForm 생성  */
-    // private makeComment() {
+    // /**댓글 입력, 등록 버튼  만들기 -> inputForm 생성  */
+    // private makeCommentForm() {
     //   //댓글 폼
+    //   this.inputForm = document.createElement("form");
     //   this.input = document.createElement("input");
     //   this.inputBtn = document.createElement("button");
+    //   this.inputBtn.innerText = "등록";
+    //   this.inputForm.appendChild(this.input);
+    //   this.inputForm.appendChild(this.inputBtn);
+    //   this.inputBtn.addEventListener("click", (event) => this.submitValue(event));
+    //   this.feed.appendChild(this.removeBtn);
+    //   this.feed.appendChild(this.editBtn);
+    //   this.feed.appendChild(this.toggleBtn);
+    //   this.feed.appendChild(this.inputForm);
     // }
     /**댓글 등록  */
     submitValue(e) {
         console.log(this.input.value);
-        /**임시 유저 정보 , 로그인 구현 후 삭제할 것 */
-        const testUser = new User("Test1", "TESTNAME", "TESTNICKNAME", 0);
+        e.preventDefault();
+        // submit 이후 새로고침 방지
         /**댓글 생성 -> body에 boardComment넣어서 보낼 것 */
         // 임시
         // 현재 user에 대한 정보가 없는데....
@@ -182,10 +254,11 @@ class Feed {
             },
             body: JSON.stringify(data),
         }).then((res) => console.log(res));
+        this.inputForm.reset();
     }
     /**해당 Feed에 대한 댓글 붙이기 */
     showComment() {
-        var _a;
+        var _a, _b;
         if (this.needRequestComment) {
             this.commentPromise.then((d) => {
                 var _a;
@@ -194,6 +267,7 @@ class Feed {
                 });
                 this.toggleBtn.innerText = "close";
                 this.commentUI = createComment(this.boardItem.comments);
+                // commentList 댓글로 이뤄진 div 태그 반환
                 (_a = this.toggleBtn.parentNode) === null || _a === void 0 ? void 0 : _a.appendChild(this.commentUI);
                 this.needRequestComment = false;
             });
@@ -203,6 +277,7 @@ class Feed {
             this.commentUI = createComment(this.boardItem.comments);
             (_a = this.toggleBtn.parentNode) === null || _a === void 0 ? void 0 : _a.appendChild(this.commentUI);
         }
+        (_b = this.toggleBtn.parentNode) === null || _b === void 0 ? void 0 : _b.appendChild(this.inputForm);
     }
     hideComent() {
         var _a;
@@ -230,4 +305,9 @@ function setFeedAtContent() {
         .getFeeds()
         .forEach((e) => mainContentElem === null || mainContentElem === void 0 ? void 0 : mainContentElem.appendChild(e.returnSingle()));
 }
+// 맨위 addBtn -> 피드 추가
+board === null || board === void 0 ? void 0 : board.addEventListener("click", () => {
+    mainContentElem === null || mainContentElem === void 0 ? void 0 : mainContentElem.appendChild(addBtn);
+});
+// setFeedAtContent
 board === null || board === void 0 ? void 0 : board.addEventListener("click", setFeedAtContent);

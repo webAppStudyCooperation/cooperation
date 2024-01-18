@@ -1,40 +1,122 @@
 const board: HTMLElement | null = document.getElementById("board");
-let boardFlag = false;
 const mainContentElem: HTMLElement | null =
   document.getElementById("mainContent");
 
-import { response } from "express";
-import { env } from "process";
-import { add } from "../../node_modules/winston/index.js";
 import { baseURL } from "./config.js";
-import { BoardItem } from "./models/boards.js";
-import { BoardComment } from "./models/comments.js";
-import { User } from "./models/user.js";
+import { BoardItem } from "./models/back/boards.js";
+import { BoardComment } from "./models/back/comments.js";
+import { User } from "./models/back/user.js";
+import { DateString } from "./models/back/boards.js";
+// import { inputFeedForm } from "../frontModel/inputFeedForm";
 
-/** 게시글 추가 버튼 생성 및  기능*/
+/**임시 유저 정보 , 로그인 구현 후 삭제할 것 */
+const testUser = new User("Test1", "TESTNAME", "TESTNICKNAME", 0);
+
+class InputFeedForm {
+  inputFeedForm: HTMLFormElement = document.createElement("form");
+  inputContent: HTMLInputElement = document.createElement("input");
+  inputTitle: HTMLInputElement = document.createElement("input");
+  innerAddBtn: HTMLButtonElement = document.createElement("button");
+
+  /** 피드 작성 폼 생성 */
+  constructor() {
+    this.innerAddBtn.innerText = "피드 등록";
+    this.inputFeedForm.appendChild(this.inputTitle);
+    this.inputFeedForm.appendChild(this.inputContent);
+
+    this.inputFeedForm.appendChild(this.innerAddBtn);
+    this.innerAddBtn.addEventListener("click", (e: Event) =>
+      this.submitNewFeed(e, this.inputContent, this.inputTitle)
+    );
+  }
+
+  returnForm() {
+    return this.inputFeedForm;
+  }
+
+  show() {
+    mainContentElem?.appendChild(this.returnForm());
+  }
+
+  hide() {
+    mainContentElem?.removeChild(this.returnForm());
+  }
+
+  /**피드 등록*/
+  private submitNewFeed(
+    e: Event,
+    inputContent: HTMLInputElement,
+    inputTitle: HTMLInputElement
+  ) {
+    e.preventDefault();
+
+    this.hide();
+
+    this.postNewFeed();
+    this.inputFeedForm.reset();
+  }
+
+  /**
+ * BoardItem 생성 api 아래 형식으로 요청 가능
+ * body: {
+        "boardId": 0,
+        "title": "testTitle",
+        "content": "dsfdsfdsfsdf",
+        "creationDate": "2021:07:29 00:00:00",
+        "modifyDate": "2021:07:29 00:00:00",
+        "password": null,
+        "secret": 0,
+        "createUser": {
+            "id": "test",
+            "name": "testName",
+            "nickName": "testNickNAme",
+            "familyId": 0
+        },
+        "comments": []
+    }
+ */
+
+  /**피드 등록시 서버에게 post 요청 */
+  private postNewFeed() {
+    //modifyDate 후에 구현 예정
+    let testDate = new DateString(null, new Date());
+
+    // 임시 testData, 로그인 구현 이후 수정 필요
+    // 다른 폴더로 클래스 분리했을시 boardId feedmanager 접근 못함
+    let testData = new BoardItem(
+      feedManager.getFeedNumber() + 1,
+      this.inputTitle.value,
+      this.inputContent.value,
+      testDate,
+      testDate,
+      null,
+      0,
+      testUser,
+      0
+    );
+    console.log(testData);
+
+    let data = testData;
+    fetch(baseURL + "api/boards", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+  }
+}
+
+const inputFeedForm: InputFeedForm = new InputFeedForm();
+
+/** 피드 추가 버튼 생성 및  기능*/
 const addBtn: HTMLButtonElement = document.createElement("button");
-mainContentElem?.appendChild(addBtn);
+addBtn.innerText = "피드 추가:+";
 
-/**게시글 추가 버튼 */
-addBtn.innerText = "게시글 추가";
-addBtn.addEventListener("click", showCreateFeed);
-
-function showCreateFeed() {
-  const showFeedForm: HTMLDivElement = document.createElement("div");
-
-  const inputFeed: HTMLInputElement = document.createElement("input");
-  const addBtn: HTMLButtonElement = document.createElement("button");
-  addBtn.addEventListener("click", () => {
-    console.log("youClickedInsideBtn");
-  });
-
-  showFeedForm.appendChild(inputFeed);
-  showFeedForm.appendChild(addBtn);
-}
-
-function createFeed() {
-  console.log("게시글 작성 후 추가  ");
-}
+addBtn.addEventListener("click", () => {
+  inputFeedForm.show();
+});
+// 작동 O
 
 /**해당 게시글의 댓글 생성*/
 function createComment(DBcommentList: BoardComment[]) {
@@ -138,6 +220,10 @@ class FeedManager {
     return this.feedList;
   }
 
+  getFeedNumber() {
+    return this.feedList.length;
+  }
+
   // getData(): BoardItem[] {
   //   if (this.data != undefined || this.data != null) {
   //     return this.data;
@@ -149,7 +235,7 @@ class FeedManager {
 
 /**
  * 임시로 familyId를 0으로 처리하였다.
- * 로그인 기능 구현 이후 이부분 로그인된 사용자의 familyId를 값으로 넣어주어야
+ * 로그인 기능 구현 이후 이부분 로그인된 사용자의 familyId를 값으로 넣어주어야 한다.
  */
 const feedManager = new FeedManager(0);
 
@@ -159,7 +245,7 @@ class Feed {
   private toggleBtn: HTMLButtonElement;
   private removeBtn: HTMLButtonElement;
   private editBtn: HTMLButtonElement;
-  private inputForm: HTMLDivElement = document.createElement("div");
+  private inputForm: HTMLFormElement;
   private input: HTMLInputElement;
   private inputBtn: HTMLButtonElement;
 
@@ -197,8 +283,8 @@ class Feed {
       this.toggleListner(event);
     });
 
-    // this.makeComment();
-    this.inputForm = document.createElement("div");
+    /**댓글 입력, 등록 버튼  만들기 -> inputForm 생성  */
+    this.inputForm = document.createElement("form");
     this.input = document.createElement("input");
     this.inputBtn = document.createElement("button");
     this.inputBtn.innerText = "등록";
@@ -209,7 +295,7 @@ class Feed {
     this.feed.appendChild(this.removeBtn);
     this.feed.appendChild(this.editBtn);
     this.feed.appendChild(this.toggleBtn);
-    this.feed.appendChild(this.inputForm);
+    // this.commentUI.appendChild(this.inputForm);
   }
 
   /*HTMLDivElement인 feed return */
@@ -220,26 +306,37 @@ class Feed {
   /*버튼 toggle */
   private toggleListner(event: Event) {
     // let targetParentNode = this.toggleBtn.parentNode;
+
     if (this.toggleBtn.innerText === "open") {
       this.showComment();
     } else {
       this.hideComent();
+      this.toggleBtn.parentNode?.removeChild(this.inputForm);
     }
   }
 
-  /**댓글 입력, 등록 버튼  만들기 -> inputForm 생성  */
-  // private makeComment() {
+  // /**댓글 입력, 등록 버튼  만들기 -> inputForm 생성  */
+  // private makeCommentForm() {
   //   //댓글 폼
+  //   this.inputForm = document.createElement("form");
   //   this.input = document.createElement("input");
   //   this.inputBtn = document.createElement("button");
+  //   this.inputBtn.innerText = "등록";
+  //   this.inputForm.appendChild(this.input);
+  //   this.inputForm.appendChild(this.inputBtn);
+  //   this.inputBtn.addEventListener("click", (event) => this.submitValue(event));
+
+  //   this.feed.appendChild(this.removeBtn);
+  //   this.feed.appendChild(this.editBtn);
+  //   this.feed.appendChild(this.toggleBtn);
+  //   this.feed.appendChild(this.inputForm);
   // }
 
   /**댓글 등록  */
   private submitValue(e: Event) {
     console.log(this.input.value);
-
-    /**임시 유저 정보 , 로그인 구현 후 삭제할 것 */
-    const testUser = new User("Test1", "TESTNAME", "TESTNICKNAME", 0);
+    e.preventDefault();
+    // submit 이후 새로고침 방지
 
     /**댓글 생성 -> body에 boardComment넣어서 보낼 것 */
     // 임시
@@ -261,6 +358,8 @@ class Feed {
       },
       body: JSON.stringify(data),
     }).then((res) => console.log(res));
+
+    this.inputForm.reset();
   }
 
   /**해당 Feed에 대한 댓글 붙이기 */
@@ -272,6 +371,7 @@ class Feed {
         });
         this.toggleBtn.innerText = "close";
         this.commentUI = createComment(this.boardItem.comments);
+        // commentList 댓글로 이뤄진 div 태그 반환
         this.toggleBtn.parentNode?.appendChild(this.commentUI);
         this.needRequestComment = false;
       });
@@ -280,6 +380,8 @@ class Feed {
       this.commentUI = createComment(this.boardItem.comments);
       this.toggleBtn.parentNode?.appendChild(this.commentUI);
     }
+
+    this.toggleBtn.parentNode?.appendChild(this.inputForm);
   }
 
   private hideComent() {
@@ -311,4 +413,9 @@ function setFeedAtContent() {
     .forEach((e) => mainContentElem?.appendChild(e.returnSingle()));
 }
 
+// 맨위 addBtn -> 피드 추가
+board?.addEventListener("click", () => {
+  mainContentElem?.appendChild(addBtn);
+});
+// setFeedAtContent
 board?.addEventListener("click", setFeedAtContent);
