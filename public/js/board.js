@@ -13,7 +13,7 @@ import { User } from "./models/back/user.js";
 import { DateString } from "./models/back/boards.js";
 // import { inputFeedForm } from "../frontModel/inputFeedForm";
 /**임시 유저 정보 , 로그인 구현 후 삭제할 것 */
-const testUser = new User("Test1", "TESTNAME", "TESTNICKNAME", 0);
+const testUser = new User("test", "TESTNAME", "TESTNICKNAME", 0);
 /**
  * 편집 페이지 만들기
  */
@@ -139,7 +139,6 @@ class InputFeedForm {
             password: null,
             secret: 0,
             createUser: testUser,
-            comments: [],
             familyId: 0,
         };
         let data = testData;
