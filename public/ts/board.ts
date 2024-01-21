@@ -163,17 +163,18 @@ class InputFeedForm {
     // 임시 testData, 로그인 구현 이후 수정 필요
     // 다른 폴더로 클래스 분리했을시 boardId feedmanager 접근 못함
     // feedManager.getFeedNumber() + 1
-    let testData = new BoardItem(
-      Math.random(),
-      this.inputTitle.value,
-      this.inputContent.value,
-      testDate,
-      testDate,
-      null,
-      0,
-      testUser,
-      0
-    );
+    let testData = {
+      boardId: 0,
+      title: "testTitle",
+      content: "dsfdsfdsfsdf",
+      creationDate: "2021:07:29 00:00:00",
+      modifyDate: "2021:07:29 00:00:00",
+      password: null,
+      secret: 0,
+      createUser: testUser,
+      comments: [],
+      familyId: 0,
+    };
 
     let data = testData;
     fetch(baseURL + "api/boards/add", {
@@ -181,7 +182,7 @@ class InputFeedForm {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify(testData),
     }).then((res) => {
       console.log(res);
     });
