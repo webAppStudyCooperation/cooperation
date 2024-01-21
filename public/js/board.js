@@ -49,18 +49,6 @@ function setEditPage(boardItem, title, content) {
             comments: boardItem.comments,
             familyId: 0,
         };
-        const testData = {
-            boardId: boardItem.boardId,
-            title: inputTitle.value,
-            content: inputContent.value,
-            creationDate: "2021:07:29 00:00:00",
-            modifyDate: "2021:07:29 00:00:00",
-            password: null,
-            secret: 0,
-            createUser: testUser,
-            comments: [],
-            familyId: 0,
-        };
         fetch(baseURL + "api/boards/update", {
             method: "PUT",
             headers: {
@@ -132,8 +120,8 @@ class InputFeedForm {
         // feedManager.getFeedNumber() + 1
         let testData = {
             boardId: 0,
-            title: "testTitle",
-            content: "dsfdsfdsfsdf",
+            title: this.inputTitle.value,
+            content: this.inputContent.value,
             creationDate: "2021:07:29 00:00:00",
             modifyDate: "2021:07:29 00:00:00",
             password: null,
