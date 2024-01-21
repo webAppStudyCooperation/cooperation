@@ -78,7 +78,6 @@ class InputFeedForm {
       },
       body: JSON.stringify(data),
     }).then((res) => {
-      console.log(`POST RES:\n`);
       console.log(res);
     });
   }
@@ -147,7 +146,7 @@ class FeedManager {
         this.feedList.push(
           new Feed(
             boardItem,
-            boardItem.content,
+            boardItem.title,
             this.getComment(boardItem.boardId)
           )
         );
@@ -230,16 +229,17 @@ class Feed {
   private commentPromise: Promise<BoardComment[]>;
   private boardItem: BoardItem;
   private commentUI: HTMLDivElement = document.createElement("div");
+  private contentUI: HTMLDivElement = document.createElement("div");
 
   constructor(
     boardItem: BoardItem,
-    content: string,
+    title: string,
     commentPromise: Promise<BoardComment[]>
   ) {
     this.boardItem = boardItem;
     this.commentPromise = commentPromise;
     this.feed = document.createElement("div");
-    this.feed.innerText = content;
+    this.feed.innerText = title;
 
     //삭제 버튼
     this.removeBtn = document.createElement("button");
@@ -285,9 +285,11 @@ class Feed {
     // let targetParentNode = this.toggleBtn.parentNode;
 
     if (this.toggleBtn.innerText === "open") {
+      this.showContent();
       this.showComment();
     } else {
       this.hideComent();
+      this.hideContent();
       this.toggleBtn.parentNode?.removeChild(this.inputForm);
     }
   }
@@ -337,6 +339,19 @@ class Feed {
     }).then((res) => console.log(res));
 
     this.inputForm.reset();
+  }
+
+  /**해당 Feed에 대한 내용[글] 붙이기 */
+  private showContent() {
+    this.contentUI.innerText = this.boardItem.content;
+    this.toggleBtn.parentNode?.appendChild(this.contentUI);
+  }
+
+  /**해당 Feed에 대한 내용[글] 가리기 */
+  private hideContent() {
+    console.log(this.toggleBtn.parentNode);
+    console.log(this.contentUI.parentNode);
+    this.toggleBtn.parentNode?.removeChild(this.contentUI);
   }
 
   /**해당 Feed에 대한 댓글 붙이기 */

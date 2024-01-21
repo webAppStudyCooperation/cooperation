@@ -19,7 +19,7 @@ class InputFeedForm {
         this.inputFeedForm.appendChild(this.inputTitle);
         this.inputFeedForm.appendChild(this.inputContent);
         this.inputFeedForm.appendChild(this.innerAddBtn);
-        this.innerAddBtn.addEventListener("click", (e) => this.submitNewFeed(e, this.inputContent, this.inputTitle));
+        this.innerAddBtn.addEventListener("click", (e) => this.submitNewFeed(e));
     }
     returnForm() {
         return this.inputFeedForm;
@@ -31,31 +31,12 @@ class InputFeedForm {
         mainContentElem === null || mainContentElem === void 0 ? void 0 : mainContentElem.removeChild(this.returnForm());
     }
     /**피드 등록*/
-    submitNewFeed(e, inputContent, inputTitle) {
+    submitNewFeed(e) {
         e.preventDefault();
         this.hide();
         this.postNewFeed();
         this.inputFeedForm.reset();
     }
-    /**
-   * BoardItem 생성 api 아래 형식으로 요청 가능
-   * body: {
-          "boardId": 0,
-          "title": "testTitle",
-          "content": "dsfdsfdsfsdf",
-          "creationDate": "2021:07:29 00:00:00",
-          "modifyDate": "2021:07:29 00:00:00",
-          "password": null,
-          "secret": 0,
-          "createUser": {
-              "id": "test",
-              "name": "testName",
-              "nickName": "testNickNAme",
-              "familyId": 0
-          },
-          "comments": []
-      }
-   */
     /**피드 등록시 서버에게 post 요청 */
     postNewFeed() {
         //modifyDate 후에 구현 예정
@@ -72,7 +53,6 @@ class InputFeedForm {
             },
             body: JSON.stringify(data),
         }).then((res) => {
-            console.log(`POST RES:\n`);
             console.log(res);
         });
     }
@@ -126,7 +106,7 @@ class FeedManager {
                 this.feedList.pop();
             }
             d.forEach((boardItem) => {
-                this.feedList.push(new Feed(boardItem, boardItem.content, this.getComment(boardItem.boardId)));
+                this.feedList.push(new Feed(boardItem, boardItem.title, this.getComment(boardItem.boardId)));
             });
         });
         // endLoding
@@ -172,13 +152,14 @@ class FeedManager {
 const feedManager = new FeedManager(0);
 // 하나의 피드 -> 하나의 boardItem 정보들로 구성
 class Feed {
-    constructor(boardItem, content, commentPromise) {
+    constructor(boardItem, title, commentPromise) {
         this.needRequestComment = true;
         this.commentUI = document.createElement("div");
+        this.contentUI = document.createElement("div");
         this.boardItem = boardItem;
         this.commentPromise = commentPromise;
         this.feed = document.createElement("div");
-        this.feed.innerText = content;
+        this.feed.innerText = title;
         //삭제 버튼
         this.removeBtn = document.createElement("button");
         this.removeBtn.innerText = "remove";
@@ -217,10 +198,12 @@ class Feed {
         // let targetParentNode = this.toggleBtn.parentNode;
         var _a;
         if (this.toggleBtn.innerText === "open") {
+            this.showContent();
             this.showComment();
         }
         else {
             this.hideComent();
+            this.hideContent();
             (_a = this.toggleBtn.parentNode) === null || _a === void 0 ? void 0 : _a.removeChild(this.inputForm);
         }
     }
@@ -258,6 +241,19 @@ class Feed {
             body: JSON.stringify(data),
         }).then((res) => console.log(res));
         this.inputForm.reset();
+    }
+    /**해당 Feed에 대한 내용[글] 붙이기 */
+    showContent() {
+        var _a;
+        this.contentUI.innerText = this.boardItem.content;
+        (_a = this.toggleBtn.parentNode) === null || _a === void 0 ? void 0 : _a.appendChild(this.contentUI);
+    }
+    /**해당 Feed에 대한 내용[글] 가리기 */
+    hideContent() {
+        var _a;
+        console.log(this.toggleBtn.parentNode);
+        console.log(this.contentUI.parentNode);
+        (_a = this.toggleBtn.parentNode) === null || _a === void 0 ? void 0 : _a.removeChild(this.contentUI);
     }
     /**해당 Feed에 대한 댓글 붙이기 */
     showComment() {
