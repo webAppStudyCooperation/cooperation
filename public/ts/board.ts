@@ -26,7 +26,7 @@ class InputFeedForm {
 
     this.inputFeedForm.appendChild(this.innerAddBtn);
     this.innerAddBtn.addEventListener("click", (e: Event) =>
-      this.submitNewFeed(e, this.inputContent, this.inputTitle)
+      this.submitNewFeed(e)
     );
   }
 
@@ -43,38 +43,12 @@ class InputFeedForm {
   }
 
   /**피드 등록*/
-  private submitNewFeed(
-    e: Event,
-    inputContent: HTMLInputElement,
-    inputTitle: HTMLInputElement
-  ) {
+  private submitNewFeed(e: Event) {
     e.preventDefault();
-
     this.hide();
-
     this.postNewFeed();
     this.inputFeedForm.reset();
   }
-
-  /**
- * BoardItem 생성 api 아래 형식으로 요청 가능
- * body: {
-        "boardId": 0,
-        "title": "testTitle",
-        "content": "dsfdsfdsfsdf",
-        "creationDate": "2021:07:29 00:00:00",
-        "modifyDate": "2021:07:29 00:00:00",
-        "password": null,
-        "secret": 0,
-        "createUser": {
-            "id": "test",
-            "name": "testName",
-            "nickName": "testNickNAme",
-            "familyId": 0
-        },
-        "comments": []
-    }
- */
 
   /**피드 등록시 서버에게 post 요청 */
   private postNewFeed() {
@@ -83,8 +57,9 @@ class InputFeedForm {
 
     // 임시 testData, 로그인 구현 이후 수정 필요
     // 다른 폴더로 클래스 분리했을시 boardId feedmanager 접근 못함
+    // feedManager.getFeedNumber() + 1
     let testData = new BoardItem(
-      feedManager.getFeedNumber() + 1,
+      Math.random(),
       this.inputTitle.value,
       this.inputContent.value,
       testDate,
@@ -94,15 +69,17 @@ class InputFeedForm {
       testUser,
       0
     );
-    console.log(testData);
 
     let data = testData;
-    fetch(baseURL + "api/boards", {
+    fetch(baseURL + "api/boards/add", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
+    }).then((res) => {
+      console.log(`POST RES:\n`);
+      console.log(res);
     });
   }
 }
@@ -392,10 +369,10 @@ class Feed {
   private removeListner(boardId: number) {
     fetch(baseURL + `api/boards/comment/delete`, {
       method: "DELETE",
-      // headers: {
-      //   "Content-type": "application/json; charset=UTF-8",
-      // },
-      // body: JSON.stringify({ boardId: boardId }),
+      headers: {
+        "Content-type": "application/json",
+      },
+      body: JSON.stringify({ boardId: boardId }),
     })
       .then((response) => response)
       .then((d) => console.log(d));

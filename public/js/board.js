@@ -16,8 +16,8 @@ class InputFeedForm {
         this.inputTitle = document.createElement("input");
         this.innerAddBtn = document.createElement("button");
         this.innerAddBtn.innerText = "피드 등록";
-        this.inputFeedForm.appendChild(this.inputContent);
         this.inputFeedForm.appendChild(this.inputTitle);
+        this.inputFeedForm.appendChild(this.inputContent);
         this.inputFeedForm.appendChild(this.innerAddBtn);
         this.innerAddBtn.addEventListener("click", (e) => this.submitNewFeed(e, this.inputContent, this.inputTitle));
     }
@@ -62,15 +62,18 @@ class InputFeedForm {
         let testDate = new DateString(null, new Date());
         // 임시 testData, 로그인 구현 이후 수정 필요
         // 다른 폴더로 클래스 분리했을시 boardId feedmanager 접근 못함
-        let testData = new BoardItem(feedManager.getFeedNumber() + 1, this.inputTitle.value, this.inputContent.value, testDate, testDate, null, 0, testUser, 0);
-        console.log(testData);
+        // feedManager.getFeedNumber() + 1
+        let testData = new BoardItem(Math.random(), this.inputTitle.value, this.inputContent.value, testDate, testDate, null, 0, testUser, 0);
         let data = testData;
-        fetch(baseURL + "api/boards", {
+        fetch(baseURL + "api/boards/add", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify(data),
+        }).then((res) => {
+            console.log(`POST RES:\n`);
+            console.log(res);
         });
     }
 }
@@ -287,10 +290,10 @@ class Feed {
     removeListner(boardId) {
         fetch(baseURL + `api/boards/comment/delete`, {
             method: "DELETE",
-            // headers: {
-            //   "Content-type": "application/json; charset=UTF-8",
-            // },
-            // body: JSON.stringify({ boardId: boardId }),
+            headers: {
+                "Content-type": "application/json",
+            },
+            body: JSON.stringify({ boardId: boardId }),
         })
             .then((response) => response)
             .then((d) => console.log(d));
