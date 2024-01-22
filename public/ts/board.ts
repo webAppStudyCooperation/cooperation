@@ -7,7 +7,7 @@ const mainContentElem: HTMLElement | null =
  * 글 추가 버튼, 글 list , 댓글 등
  * 편집 페이지는 제외
  */
-const allOfBoardContent: HTMLElement | null = document.createElement("div");
+const allOfBoardContent: HTMLDivElement = document.createElement("div");
 allOfBoardContent.className = "allOfBoardContent";
 
 import { baseURL } from "./config.js";
@@ -176,14 +176,14 @@ class InputFeedForm {
 
 const inputFeedForm: InputFeedForm = new InputFeedForm();
 
-/** 피드 추가 버튼 생성 및  기능*/
-const addBtn: HTMLButtonElement = document.createElement("button");
-addBtn.innerText = "피드 추가:+";
+// /** 피드 추가 버튼 생성 및  기능*/
+// const addBtn: HTMLButtonElement = document.createElement("button");
+// addBtn.innerText = "피드 추가:+";
 
-addBtn.addEventListener("click", () => {
-  inputFeedForm.show();
-});
-// 작동 O
+// addBtn.addEventListener("click", () => {
+//   inputFeedForm.show();
+// });
+// // 작동 O
 
 /**해당 게시글의 댓글 생성*/
 function createComment(DBcommentList: BoardComment[]) {
@@ -219,9 +219,20 @@ function createComment(DBcommentList: BoardComment[]) {
 class FeedManager {
   private data: BoardItem[] = [];
   private feedList: Feed[] = [];
+  /** 피드 추가 버튼 생성 및  기능*/
+  private addBtn: HTMLButtonElement = document.createElement("button");
+  private feedDiv: HTMLDivElement = document.createElement("div");
 
   constructor(familyId: number) {
     this.setData(familyId);
+    this.addBtn.innerText = "피드 추가:+";
+    this.addBtn.addEventListener("click", () => {
+      inputFeedForm.show();
+    });
+    // 맨위 addBtn -> 피드 추가
+    board?.addEventListener("click", () => {
+      allOfBoardContent?.appendChild(this.addBtn);
+    });
   }
 
   private setData(familyId: number) {
@@ -283,12 +294,53 @@ class FeedManager {
   getFeedAt(index: number): Feed {
     return this.feedList[index];
   }
+
   getFeeds(): Feed[] {
     return this.feedList;
   }
 
   getFeedNumber() {
     return this.feedList.length;
+  }
+
+  removeFeed(boardId: number) {
+    // UI삭제
+
+    let newFeedList = this.feedList.filter((value) => {
+      return value.boardItem.boardId != boardId;
+    });
+
+    this.feedList = newFeedList;
+    // 기존에 있던 feedDiv에 있는 모든 feedNode들 삭제
+    while (this.feedDiv.firstChild) {
+      this.feedDiv.removeChild(this.feedDiv.firstChild);
+    }
+
+    allOfBoardContent.removeChild(this.feedDiv);
+
+    this.setFeedAtContent();
+  }
+
+  /**mainContent에 feedList mainContent에 붙임 */
+  setFeedAtContent() {
+    //feed divElement들 feedDiv 붙일때만 사용
+
+    /**
+     * 1. feedDiv에 각 feed들을 append
+     * 2. allofBoardContent(추가하기 btn, feedDiv)에 feedDiv append
+     * 3. 최종 mainContent에 allofBoardConent append
+     */
+
+    this.getFeeds().forEach((e) => this.feedDiv?.appendChild(e.returnSingle()));
+    allOfBoardContent.appendChild(this.feedDiv);
+    mainContentElem?.appendChild(allOfBoardContent);
+
+    // if (parentNode == this.feedDiv) {
+    //   this.getFeeds().forEach((e) => parentNode?.appendChild(e.returnSingle()));
+    // } else if (parentNode === null && parentNode === allOfBoardContent) {
+    //   parentNode.appendChild(this.feedDiv);
+    // }
+    // grandParentNode?.appendChild(parentNode as HTMLElement);
   }
 
   // getData(): BoardItem[] {
@@ -318,7 +370,7 @@ class Feed {
 
   private needRequestComment: boolean = true;
   private commentPromise: Promise<BoardComment[]>;
-  private boardItem: BoardItem;
+  boardItem: BoardItem;
   private commentUI: HTMLDivElement = document.createElement("div");
   private contentUI: HTMLDivElement = document.createElement("div");
 
@@ -344,7 +396,6 @@ class Feed {
     this.editBtn.innerText = "edit";
     this.editBtn.addEventListener("click", () => {
       this.editListner();
-      console.log("EditListener실행\n");
     });
 
     //토글 버튼
@@ -476,6 +527,8 @@ class Feed {
   }
 
   private removeListner(boardId: number) {
+    feedManager.removeFeed(boardId);
+
     fetch(baseURL + `api/boards/delete`, {
       method: "DELETE",
       headers: {
@@ -492,28 +545,12 @@ class Feed {
   }
   private editListner() {
     mainContentElem?.removeChild(allOfBoardContent as HTMLElement);
-    console.log("clickedEditListner");
     const thisItem = this.getDataForEdit();
     setEditPage(thisItem, thisItem.title, thisItem.content);
   }
 }
 
-/**mainContent에 feedList mainContent에 붙임 */
-function setFeedAtContent() {
-  // return feedManager
-  //   .getFeeds()
-  //   .forEach((e) => allOfBoardContent?.appendChild(e.returnSingle()));
-
-  feedManager
-    .getFeeds()
-    .forEach((e) => allOfBoardContent?.appendChild(e.returnSingle()));
-
-  mainContentElem?.appendChild(allOfBoardContent as HTMLElement);
-}
-
-// 맨위 addBtn -> 피드 추가
-board?.addEventListener("click", () => {
-  allOfBoardContent?.appendChild(addBtn);
-});
 // setFeedAtContent
-board?.addEventListener("click", setFeedAtContent);
+board?.addEventListener("click", () => {
+  feedManager.setFeedAtContent();
+});

@@ -141,13 +141,13 @@ class InputFeedForm {
     }
 }
 const inputFeedForm = new InputFeedForm();
-/** 피드 추가 버튼 생성 및  기능*/
-const addBtn = document.createElement("button");
-addBtn.innerText = "피드 추가:+";
-addBtn.addEventListener("click", () => {
-    inputFeedForm.show();
-});
-// 작동 O
+// /** 피드 추가 버튼 생성 및  기능*/
+// const addBtn: HTMLButtonElement = document.createElement("button");
+// addBtn.innerText = "피드 추가:+";
+// addBtn.addEventListener("click", () => {
+//   inputFeedForm.show();
+// });
+// // 작동 O
 /**해당 게시글의 댓글 생성*/
 function createComment(DBcommentList) {
     const commentList = document.createElement("div");
@@ -177,7 +177,18 @@ class FeedManager {
     constructor(familyId) {
         this.data = [];
         this.feedList = [];
+        /** 피드 추가 버튼 생성 및  기능*/
+        this.addBtn = document.createElement("button");
+        this.feedDiv = document.createElement("div");
         this.setData(familyId);
+        this.addBtn.innerText = "피드 추가:+";
+        this.addBtn.addEventListener("click", () => {
+            inputFeedForm.show();
+        });
+        // 맨위 addBtn -> 피드 추가
+        board === null || board === void 0 ? void 0 : board.addEventListener("click", () => {
+            allOfBoardContent === null || allOfBoardContent === void 0 ? void 0 : allOfBoardContent.appendChild(this.addBtn);
+        });
     }
     setData(familyId) {
         // startLoading
@@ -227,6 +238,37 @@ class FeedManager {
     getFeedNumber() {
         return this.feedList.length;
     }
+    removeFeed(boardId) {
+        // UI삭제
+        let newFeedList = this.feedList.filter((value) => {
+            return value.boardItem.boardId != boardId;
+        });
+        this.feedList = newFeedList;
+        // 기존에 있던 feedDiv에 있는 모든 feedNode들 삭제
+        while (this.feedDiv.firstChild) {
+            this.feedDiv.removeChild(this.feedDiv.firstChild);
+        }
+        allOfBoardContent.removeChild(this.feedDiv);
+        this.setFeedAtContent();
+    }
+    /**mainContent에 feedList mainContent에 붙임 */
+    setFeedAtContent() {
+        //feed divElement들 feedDiv 붙일때만 사용
+        /**
+         * 1. feedDiv에 각 feed들을 append
+         * 2. allofBoardContent(추가하기 btn, feedDiv)에 feedDiv append
+         * 3. 최종 mainContent에 allofBoardConent append
+         */
+        this.getFeeds().forEach((e) => { var _a; return (_a = this.feedDiv) === null || _a === void 0 ? void 0 : _a.appendChild(e.returnSingle()); });
+        allOfBoardContent.appendChild(this.feedDiv);
+        mainContentElem === null || mainContentElem === void 0 ? void 0 : mainContentElem.appendChild(allOfBoardContent);
+        // if (parentNode == this.feedDiv) {
+        //   this.getFeeds().forEach((e) => parentNode?.appendChild(e.returnSingle()));
+        // } else if (parentNode === null && parentNode === allOfBoardContent) {
+        //   parentNode.appendChild(this.feedDiv);
+        // }
+        // grandParentNode?.appendChild(parentNode as HTMLElement);
+    }
 }
 /**
  * 임시로 familyId를 0으로 처리하였다.
@@ -254,7 +296,6 @@ class Feed {
         this.editBtn.innerText = "edit";
         this.editBtn.addEventListener("click", () => {
             this.editListner();
-            console.log("EditListener실행\n");
         });
         //토글 버튼
         this.toggleBtn = document.createElement("button");
@@ -370,6 +411,7 @@ class Feed {
         (_a = this.toggleBtn.parentNode) === null || _a === void 0 ? void 0 : _a.removeChild(this.commentUI);
     }
     removeListner(boardId) {
+        feedManager.removeFeed(boardId);
         fetch(baseURL + `api/boards/delete`, {
             method: "DELETE",
             headers: {
@@ -385,24 +427,11 @@ class Feed {
     }
     editListner() {
         mainContentElem === null || mainContentElem === void 0 ? void 0 : mainContentElem.removeChild(allOfBoardContent);
-        console.log("clickedEditListner");
         const thisItem = this.getDataForEdit();
         setEditPage(thisItem, thisItem.title, thisItem.content);
     }
 }
-/**mainContent에 feedList mainContent에 붙임 */
-function setFeedAtContent() {
-    // return feedManager
-    //   .getFeeds()
-    //   .forEach((e) => allOfBoardContent?.appendChild(e.returnSingle()));
-    feedManager
-        .getFeeds()
-        .forEach((e) => allOfBoardContent === null || allOfBoardContent === void 0 ? void 0 : allOfBoardContent.appendChild(e.returnSingle()));
-    mainContentElem === null || mainContentElem === void 0 ? void 0 : mainContentElem.appendChild(allOfBoardContent);
-}
-// 맨위 addBtn -> 피드 추가
-board === null || board === void 0 ? void 0 : board.addEventListener("click", () => {
-    allOfBoardContent === null || allOfBoardContent === void 0 ? void 0 : allOfBoardContent.appendChild(addBtn);
-});
 // setFeedAtContent
-board === null || board === void 0 ? void 0 : board.addEventListener("click", setFeedAtContent);
+board === null || board === void 0 ? void 0 : board.addEventListener("click", () => {
+    feedManager.setFeedAtContent();
+});
