@@ -8,67 +8,13 @@ const mainContentElem = document.getElementById("mainContent");
 const allOfBoardContent = document.createElement("div");
 allOfBoardContent.className = "allOfBoardContent";
 import { baseURL } from "./config.js";
+import { BoardItem } from "./models/back/boards.js";
 import { BoardComment } from "./models/back/comments.js";
 import { User } from "./models/back/user.js";
 import { DateString } from "./models/back/boards.js";
 // import { inputFeedForm } from "../frontModel/inputFeedForm";
 /**임시 유저 정보 , 로그인 구현 후 삭제할 것 */
 const testUser = new User("test", "TESTNAME", "TESTNICKNAME", 0);
-/**
- * 편집 페이지 만들기
- */
-function setEditPage(boardItem, title, content) {
-    const editPage = document.createElement("div");
-    const inputFeedForm = document.createElement("form");
-    const inputContent = document.createElement("input");
-    const inputTitle = document.createElement("input");
-    const innerAddBtn = document.createElement("button");
-    inputTitle.value = title;
-    inputContent.value = content;
-    innerAddBtn.innerText = "피드 재등록";
-    inputFeedForm.appendChild(inputTitle);
-    inputFeedForm.appendChild(inputContent);
-    inputFeedForm.appendChild(innerAddBtn);
-    editPage.appendChild(inputFeedForm);
-    mainContentElem === null || mainContentElem === void 0 ? void 0 : mainContentElem.appendChild(editPage);
-    innerAddBtn.addEventListener("click", (e) => {
-        console.log(inputTitle.value);
-        console.log(inputContent.value);
-        // POST FUCNITON
-        e.preventDefault();
-        // //DATE 수정필요
-        const data = {
-            boardId: boardItem.boardId,
-            title: inputTitle.value,
-            content: inputContent.value,
-            creationDate: boardItem.creationDate,
-            modifyDate: "2021:07:29 00:00:00",
-            password: boardItem.password,
-            secret: boardItem.secret,
-            createUser: testUser,
-            comments: boardItem.comments,
-            familyId: 0,
-        };
-        fetch(baseURL + "api/boards/update", {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(data),
-        }).then((res) => console.log(res));
-        // editPage 제거,  allOfBoardContent 붙이기
-        mainContentElem === null || mainContentElem === void 0 ? void 0 : mainContentElem.removeChild(editPage);
-        mainContentElem === null || mainContentElem === void 0 ? void 0 : mainContentElem.appendChild(allOfBoardContent);
-    });
-    // // const thisForm = inputFeedForm.returnForm();
-    // console.log(thisForm.childNodes[0].textContent);
-    // // 0: inputTitle, 1: inputContent, 2: Btn
-    // // 기존 내용 세팅
-    // thisForm.childNodes[0].textContent = title;
-    // thisForm.childNodes[1].textContent = content;
-    // editPage?.appendChild(inputFeedForm.returnForm());
-    // mainContentElem?.appendChild(editPage);
-}
 class InputFeedForm {
     /** 피드 작성 폼 생성 */
     constructor() {
@@ -192,6 +138,7 @@ class FeedManager {
     }
     setData(familyId) {
         // startLoading
+        console.log(`setData 활성화 `);
         this.getDataList(familyId).then((d) => {
             this.data = d;
             console.log(d);
@@ -251,14 +198,62 @@ class FeedManager {
         allOfBoardContent.removeChild(this.feedDiv);
         this.setFeedAtContent();
     }
-    /**mainContent에 feedList mainContent에 붙임 */
+    /**
+     * UI 업데이트
+     * BoardId가 같은 속성에서
+     * title, content, modifyDate secret 수정
+     */
+    editFeed(boardItem, inputTitle, inputContent) {
+        /** 서버 요청용 객체 생성 */
+        const modifyDate = new DateString("2021:07:29 00:00:00", null);
+        const newBoarditem = new BoardItem(boardItem.boardId, inputTitle, inputContent, boardItem.creationDate, modifyDate, boardItem.password, boardItem.secret.value, boardItem.createUser, boardItem.familyId);
+        fetch(baseURL + "api/boards/update", {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(newBoarditem),
+        })
+            .then((res) => {
+            console.log(res);
+            if (res.status == 200) {
+                const targetFeed = this.getFeedByBoardId(boardItem.boardId);
+                targetFeed === null || targetFeed === void 0 ? void 0 : targetFeed.setBoardItem(newBoarditem);
+                targetFeed === null || targetFeed === void 0 ? void 0 : targetFeed.setUIValues();
+            }
+            else if (res.status == 400) {
+                alert("등록에 실패하였습니다 :(");
+            }
+        })
+            .catch((error) => {
+            console.error(error);
+            alert("등록에 실패하였습니다 :(");
+        });
+        // const newFeedList = this.feedList.filter((value) => {
+        //   if (value.boardItem.boardId === editData.boardId) {
+        //     value.boardItem.title = editData.title;
+        //     value.boardItem.content = editData.content;
+        //     value.boardItem.modifyDate = editData.modifyDate;
+        //     value.boardItem.secret = editData.secret;
+        //   }
+        // });
+    }
+    refresh() {
+        while (this.feedDiv.firstChild) {
+            this.feedDiv.removeChild(this.feedDiv.firstChild);
+        }
+        this.getFeeds().forEach((e) => { var _a; return (_a = this.feedDiv) === null || _a === void 0 ? void 0 : _a.appendChild(e.returnSingle()); });
+    }
+    getFeedByBoardId(boardId) {
+        return this.feedList.find((elem) => elem.boardItem.boardId === boardId);
+    }
+    /**
+     * 1. feedDiv에 각 feed들을 append
+     * 2. allofBoardContent(추가하기 btn, feedDiv)에 feedDiv append
+     * 3. 최종 mainContent에 allofBoardConent append
+     */
     setFeedAtContent() {
-        //feed divElement들 feedDiv 붙일때만 사용
-        /**
-         * 1. feedDiv에 각 feed들을 append
-         * 2. allofBoardContent(추가하기 btn, feedDiv)에 feedDiv append
-         * 3. 최종 mainContent에 allofBoardConent append
-         */
+        console.log(this.getFeeds());
         this.getFeeds().forEach((e) => { var _a; return (_a = this.feedDiv) === null || _a === void 0 ? void 0 : _a.appendChild(e.returnSingle()); });
         allOfBoardContent.appendChild(this.feedDiv);
         mainContentElem === null || mainContentElem === void 0 ? void 0 : mainContentElem.appendChild(allOfBoardContent);
@@ -275,7 +270,7 @@ class FeedManager {
  * 로그인 기능 구현 이후 이부분 로그인된 사용자의 familyId를 값으로 넣어주어야 한다.
  */
 const feedManager = new FeedManager(0);
-// 하나의 피드 -> 하나의 boardItem 정보들로 구성
+/** 하나의 피드 -> 하나의 boardItem 정보들로 구성*/
 class Feed {
     constructor(boardItem, title, commentPromise) {
         this.needRequestComment = true;
@@ -284,18 +279,19 @@ class Feed {
         this.boardItem = boardItem;
         this.commentPromise = commentPromise;
         this.feed = document.createElement("div");
-        this.feed.innerText = title;
+        this.feedContentTitle = document.createElement("span");
+        this.feedContentTitle.className = `contentTitle`;
         //삭제 버튼
         this.removeBtn = document.createElement("button");
         this.removeBtn.innerText = "remove";
         this.removeBtn.addEventListener("click", (event) => {
-            this.removeListner(this.boardItem.boardId);
+            this.removeListener(this.boardItem.boardId);
         });
         //수정버튼
         this.editBtn = document.createElement("button");
         this.editBtn.innerText = "edit";
         this.editBtn.addEventListener("click", () => {
-            this.editListner();
+            this.editListener();
         });
         //토글 버튼
         this.toggleBtn = document.createElement("button");
@@ -311,16 +307,25 @@ class Feed {
         this.inputForm.appendChild(this.input);
         this.inputForm.appendChild(this.inputBtn);
         this.inputBtn.addEventListener("click", (event) => this.submitValue(event));
+        this.feed.appendChild(this.feedContentTitle);
         this.feed.appendChild(this.removeBtn);
         this.feed.appendChild(this.editBtn);
         this.feed.appendChild(this.toggleBtn);
+        this.setUIValues();
         // this.commentUI.appendChild(this.inputForm);
     }
-    /*HTMLDivElement인 feed return */
+    setBoardItem(boardItem) {
+        this.boardItem = boardItem;
+    }
+    setUIValues() {
+        this.feedContentTitle.innerText = this.boardItem.title;
+        this.contentUI.innerText = this.boardItem.content;
+    }
+    /** HTMLDivElement인 feed return */
     returnSingle() {
         return this.feed;
     }
-    /*버튼 toggle */
+    /**버튼 toggle */
     toggleListner(event) {
         // let targetParentNode = this.toggleBtn.parentNode;
         var _a;
@@ -354,7 +359,7 @@ class Feed {
         console.log(this.input.value);
         e.preventDefault();
         // submit 이후 새로고침 방지
-        /**댓글 생성 -> body에 boardComment넣어서 보낼 것 */
+        /**댓글 생성 -> body에 boardComment 넣어서 보낼 것 */
         // 임시
         // 현재 user에 대한 정보가 없는데....
         // commentId 0부터 시작하는지 확인할것
@@ -366,13 +371,14 @@ class Feed {
                 // 'Content-Type': 'application/x-www-form-urlencoded',
             },
             body: JSON.stringify(data),
-        }).then((res) => console.log(res));
+        })
+            .then((res) => console.log(res))
+            .catch((error) => console.error(error));
         this.inputForm.reset();
     }
     /**해당 Feed에 대한 내용[글] 붙이기 */
     showContent() {
         var _a;
-        this.contentUI.innerText = this.boardItem.content;
         (_a = this.toggleBtn.parentNode) === null || _a === void 0 ? void 0 : _a.appendChild(this.contentUI);
     }
     /**해당 Feed에 대한 내용[글] 가리기 */
@@ -410,8 +416,7 @@ class Feed {
         this.toggleBtn.innerText = "open";
         (_a = this.toggleBtn.parentNode) === null || _a === void 0 ? void 0 : _a.removeChild(this.commentUI);
     }
-    removeListner(boardId) {
-        feedManager.removeFeed(boardId);
+    removeListener(boardId) {
         fetch(baseURL + `api/boards/delete`, {
             method: "DELETE",
             headers: {
@@ -419,16 +424,46 @@ class Feed {
             },
             body: JSON.stringify({ boardId: boardId }),
         })
-            .then((response) => response)
-            .then((d) => console.log(d));
+            .then((response) => {
+            feedManager.removeFeed(boardId);
+        })
+            .catch((err) => {
+            console.log(err);
+            alert("삭제에 실패하였습니다 :(");
+        });
     }
     getDataForEdit() {
         return this.boardItem;
     }
-    editListner() {
+    editListener() {
         mainContentElem === null || mainContentElem === void 0 ? void 0 : mainContentElem.removeChild(allOfBoardContent);
         const thisItem = this.getDataForEdit();
-        setEditPage(thisItem, thisItem.title, thisItem.content);
+        this.setEditPage(thisItem, thisItem.title, thisItem.content);
+    }
+    /**
+     * 편집 페이지 만들기
+     */
+    setEditPage(boardItem, title, content) {
+        const editPage = document.createElement("div");
+        const inputFeedForm = document.createElement("form");
+        const inputContent = document.createElement("input");
+        const inputTitle = document.createElement("input");
+        const innerAddBtn = document.createElement("button");
+        inputTitle.value = title;
+        inputContent.value = content;
+        innerAddBtn.innerText = "피드 재등록:+";
+        inputFeedForm.appendChild(inputTitle);
+        inputFeedForm.appendChild(inputContent);
+        inputFeedForm.appendChild(innerAddBtn);
+        editPage.appendChild(inputFeedForm);
+        mainContentElem === null || mainContentElem === void 0 ? void 0 : mainContentElem.appendChild(editPage);
+        innerAddBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            feedManager.editFeed(boardItem, inputTitle.value, inputContent.value);
+            // editPage 제거,  allOfBoardContent 붙이기, this.feedList 수정
+            mainContentElem === null || mainContentElem === void 0 ? void 0 : mainContentElem.removeChild(editPage);
+            mainContentElem === null || mainContentElem === void 0 ? void 0 : mainContentElem.appendChild(allOfBoardContent);
+        });
     }
 }
 // setFeedAtContent

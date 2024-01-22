@@ -1,6 +1,6 @@
 export class SecretNumber {
     constructor(secret) {
-        this.valid = (0 <= secret && secret <= 1);
+        this.valid = 0 <= secret && secret <= 1;
         this.value = secret;
     }
     getSecret() {
