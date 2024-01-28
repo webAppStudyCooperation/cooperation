@@ -51,6 +51,32 @@ router.post(
     }
 );
 
+/**
+ * ~/user/login
+ * 
+ * "body": {
+ *  "userId": "sdf",
+ *  "userPassword": "sdf"
+ * }
+*/
+router.delete(
+    "/delete",
+    function (req: Request, res: Response, next: NextFunction) {
+      db.checkUserPassword(req.body.userId, req.body.userPassword, (jsonString: String, success: Boolean) => {
+          if(success) {
+              db.deleteUser(req.body.userId, (jsonString: String, success: Boolean) => {
+                if(success) {
+                    res.status(200).json(jsonString)
+                } else {
+                    res.status(200).json(jsonString)
+                }
+              })
+          } else {
+              res.status(400).json(jsonString)
+          }
+      })
+    }
+  );
   
 
 module.exports = router;

@@ -201,10 +201,9 @@ function checkUserPassword(userId: String, userPassword: String, callback: (json
     if(rows[0] == null || rows[0] == undefined) {
       callback(JSON.stringify("{'message': 일치하는 아이디 없음}"), false);
     } else if(rows[0]["userPassword"] != userPassword){
-      callback(JSON.stringify("{'message': 비밀번호 불일치}"), true);
+      callback(JSON.stringify("{'message': 비밀번호 불일치}"), false);
     } else {
-      callback(JSON.stringify("{'message': 로그인 성공}"), false);
-
+      callback(JSON.stringify("{'message': 로그인 성공}"), true);
     }
   });
 }
@@ -228,6 +227,17 @@ function insertUser(userId: String, userPassword: String, name: String, nickname
   });
 }
 
+function deleteUser(userId: String, callback: (jsonString: String, success: Boolean) => {}) {
+  let q = `Delete From cooperation.user where userId = "${userId}"`
+  connection.query(q, (err: any, rows: any, fields: any) => {
+    if(err) {
+      callback(JSON.stringify("{'message': 삭제 실패}"), false);
+    } else {
+      callback(JSON.stringify("{'message': 삭제 성공}"), true);
+    }
+  });
+}
+
 module.exports = {
   getAllBoard,
   getCommentsByBoardId,
@@ -240,4 +250,5 @@ module.exports = {
   insertFamily,
   checkUserPassword,
   insertUser,
+  deleteUser,
 };
