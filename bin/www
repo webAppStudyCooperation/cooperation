@@ -7,7 +7,6 @@
 var app = require('../app');
 var debug = require('debug')('cooperation:server');
 const http = require("http");
-var io = require('socket.io')(http); // socket 객체 : io
 
 /**
  * Get port from environment and store in Express.
@@ -21,6 +20,8 @@ app.set('port', port);
  */
 
 var server = http.createServer(app);
+var io = require('socket.io')(server); // socket 객체 : io
+
 
 /**
  * Listen on provided port, on all network interfaces.
@@ -95,6 +96,7 @@ function onListening() {
 io.on('connection', function (socket) {
   // 연결이 성공했을 경우 실행됨
   let name  = "unknown"
+  let roomNum = 0
 
   socket.on('disconnect', function () {
     // 클라이언트의 연결이 끊어졌을 경우 실행됨
@@ -102,26 +104,28 @@ io.on('connection', function (socket) {
   });
 
   /**
-   * "body": {
+   * {
    *  "roomNum": 0,
    *  "name": "name"
    * }
    */
   socket.on('joinRoom', (body) => {
-    socket.join(`${body.roomNum}`)
     name = body.name
+    roomNum = body.roomNum
+    socket.join(`${body.roomNum}`)
     io.to(`${roomNum}`).emit('chat', `${name}님이 입장 하셨습니다.` ); 
   })
 
   /**
-   * "body": {
+   * {
    *  "roomNum": 0,
-   *  "msg": "name"
+   *  "userId": "testId"
+   *  "msg": "ㄴㅇㅇㄴㄹㅇㄴㄹ"
    * }
    */
   socket.on('chat', (body) => {
-    console.log('수신한 메시지:', msg);
+    console.log('수신한 메시지:', body.msg);
     // 클라이언트들에게 메시지 전송
-    io.to(`${roomNum}`).emit('chat', `${body.msg}` ); 
+    io.to(`${roomNum}`).emit('chat', `${name}: ${body.msg}` ); 
   });
 });
