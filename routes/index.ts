@@ -8,4 +8,10 @@ router.get("/", function (req: Request, res: Response, next: NextFunction) {
   res.render("index");
 });
 
+/* 소켓 테스트 페이지 */
+router.get("/socketTest", function (req: Request, res: Response, next: NextFunction) {
+  res.render("socketTest");
+});
+
+
 module.exports = router;
