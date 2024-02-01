@@ -111,9 +111,7 @@ class FeedManager {
             // startLoading
             yield this.getDataList(familyId).then((d) => {
                 this.data = d;
-                console.log("GetDataList 시작@");
                 console.log(d);
-                //? 기존에 있는 feedList 비우려고?
                 while (this.feedList.length > 0) {
                     this.feedList.pop();
                 }
@@ -122,6 +120,35 @@ class FeedManager {
                 });
             });
             // endLoding
+        });
+    }
+    /**
+     *
+     * @param boardId
+     *
+     *
+     * 댓글을 등록한 게시물 boardId를 feedList에서 찾는다.
+     * commentPromise를 Update
+     * return new comments
+     *
+     */
+    updateCommentList(boardId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // console.log(`updatCommentlist 실행 `);
+            let newComments = [];
+            for (const e of this.feedList) {
+                if (e.boardItem.boardId === boardId) {
+                    newComments = yield this.getComment(e.boardItem.boardId);
+                }
+            }
+            return newComments;
+            // this.feedList.forEach(async (e) => {
+            //   if (e.boardItem.boardId === boardId) {
+            //     let newComments = await this.getComment(e.boardItem.boardId);
+            //     return newComments;
+            //   }
+            // });
+            // console.log(`updatCommentlist 실행 완`);
         });
     }
     getComment(boardId) {
@@ -281,12 +308,6 @@ class FeedManager {
             this.setFeedAtContent();
         });
     }
-    // private returnObjToBoardItem(data: BoardItem) {
-    returnObjToBoardItem({ boardId, title, content, creationDate, modifyDate, password, secret, createUser, familyId, }) {
-        const newData = new BoardItem(boardId, title, content, creationDate, modifyDate, password, Number(secret), createUser, familyId);
-        console.log(newData);
-        return newData;
-    }
 }
 /**
  * 임시로 familyId를 0으로 처리하였다.
@@ -329,7 +350,7 @@ class Feed {
         this.inputBtn.innerText = "등록";
         this.inputForm.appendChild(this.input);
         this.inputForm.appendChild(this.inputBtn);
-        this.inputBtn.addEventListener("click", (event) => this.submitValue(event));
+        this.inputBtn.addEventListener("click", (event) => this.inputBtnListener(event));
         this.feed.appendChild(this.feedContentTitle);
         this.feed.appendChild(this.removeBtn);
         this.feed.appendChild(this.editBtn);
@@ -355,34 +376,70 @@ class Feed {
         if (this.toggleBtn.innerText === "open") {
             this.showContent();
             this.showComment();
+            (_a = this.toggleBtn.parentNode) === null || _a === void 0 ? void 0 : _a.appendChild(this.inputForm);
+            console.log(`inputForm 붙이기 끝`);
         }
         else {
             this.hideComent();
             this.hideContent();
-            (_a = this.toggleBtn.parentNode) === null || _a === void 0 ? void 0 : _a.removeChild(this.inputForm);
+            // this.toggleBtn.parentNode?.removeChild(this.inputForm);
         }
     }
-    /**댓글 등록  */
-    submitValue(e) {
-        console.log(this.input.value);
-        e.preventDefault();
-        // submit 이후 새로고침 방지
-        /**댓글 생성 -> body에 boardComment 넣어서 보낼 것 */
-        // 임시
-        // 현재 user에 대한 정보가 없는데....
-        // commentId 0부터 시작하는지 확인할것
-        let data = new BoardComment(this.boardItem.boardId, this.boardItem.comments.length + 1, this.input.value, user);
-        fetch(baseURL + `api/boards/comment/add`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                // 'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: JSON.stringify(data),
-        })
-            .then((res) => console.log(res))
-            .catch((error) => console.error(error));
-        this.inputForm.reset();
+    /**댓글 등록 eventListener */
+    inputBtnListener(e) {
+        var _a;
+        return __awaiter(this, void 0, void 0, function* () {
+            e.preventDefault();
+            // submit 이후 새로고침 방지
+            let status = yield this.postNewComment();
+            if (status == 200) {
+                // get요청
+                let newComments = yield feedManager.updateCommentList(this.boardItem.boardId);
+                this.boardItem.comments = newComments;
+                // reRender
+                this.commentUIrefresh();
+                this.commentUI = createComment(this.boardItem.comments);
+                (_a = this.toggleBtn.parentNode) === null || _a === void 0 ? void 0 : _a.appendChild(this.commentUI);
+            }
+            else if (status == 400) {
+            }
+            this.inputForm.reset();
+        });
+    }
+    commentUIrefresh() {
+        while (this.commentUI.firstChild) {
+            this.commentUI.removeChild(this.commentUI.firstChild);
+        }
+    }
+    /** 등록한 댓글 post */
+    postNewComment() {
+        return __awaiter(this, void 0, void 0, function* () {
+            /**댓글 생성 -> body에 boardComment 넣어서 보낼 것 */
+            // 임시
+            // 현재 user에 대한 정보가 없는데....
+            // commentId 0부터 시작하는지 확인할것
+            let data = new BoardComment(this.boardItem.boardId, this.boardItem.comments.length + 1, this.input.value, user);
+            try {
+                const res = yield fetch(baseURL + `api/boards/comment/add`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(data),
+                });
+                return res.status;
+                if (res.status === 200) {
+                    // alert("등록에 성공하였습니다");
+                }
+                else if (res.status === 400) {
+                    alert("등록에 실패하였습니다 :(");
+                }
+            }
+            catch (error) {
+                console.error(error);
+                alert("등록에 실패하였습니다 :(");
+            }
+        });
     }
     /**해당 Feed에 대한 내용[글] 붙이기 */
     showContent() {
@@ -398,7 +455,7 @@ class Feed {
     }
     /**해당 Feed에 대한 댓글 붙이기 */
     showComment() {
-        var _a, _b;
+        var _a;
         if (this.needRequestComment) {
             this.commentPromise.then((d) => {
                 var _a;
@@ -410,6 +467,7 @@ class Feed {
                 // commentList 댓글로 이뤄진 div 태그 반환
                 (_a = this.toggleBtn.parentNode) === null || _a === void 0 ? void 0 : _a.appendChild(this.commentUI);
                 this.needRequestComment = false;
+                console.log(`showComment() 끝`);
             });
         }
         else {
@@ -417,7 +475,6 @@ class Feed {
             this.commentUI = createComment(this.boardItem.comments);
             (_a = this.toggleBtn.parentNode) === null || _a === void 0 ? void 0 : _a.appendChild(this.commentUI);
         }
-        (_b = this.toggleBtn.parentNode) === null || _b === void 0 ? void 0 : _b.appendChild(this.inputForm);
     }
     hideComent() {
         var _a;

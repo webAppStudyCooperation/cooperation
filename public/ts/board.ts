@@ -125,10 +125,8 @@ class FeedManager {
 
     await this.getDataList(familyId).then((d) => {
       this.data = d;
-
-      console.log("GetDataList 시작@");
       console.log(d);
-      //? 기존에 있는 feedList 비우려고?
+
       while (this.feedList.length > 0) {
         this.feedList.pop();
       }
@@ -142,8 +140,37 @@ class FeedManager {
         );
       });
     });
-
     // endLoding
+  }
+
+  /**
+   *
+   * @param boardId
+   *
+   *
+   * 댓글을 등록한 게시물 boardId를 feedList에서 찾는다.
+   * commentPromise를 Update
+   * return new comments
+   *
+   */
+  async updateCommentList(boardId: number): Promise<BoardComment[]> {
+    // console.log(`updatCommentlist 실행 `);
+    let newComments: BoardComment[] = [];
+
+    for (const e of this.feedList) {
+      if (e.boardItem.boardId === boardId) {
+        newComments = await this.getComment(e.boardItem.boardId);
+      }
+    }
+    return newComments;
+
+    // this.feedList.forEach(async (e) => {
+    //   if (e.boardItem.boardId === boardId) {
+    //     let newComments = await this.getComment(e.boardItem.boardId);
+    //     return newComments;
+    //   }
+    // });
+    // console.log(`updatCommentlist 실행 완`);
   }
 
   private getComment(boardId: number): Promise<BoardComment[]> {
@@ -338,55 +365,6 @@ class FeedManager {
     this.refresh();
     this.setFeedAtContent();
   }
-
-  // private returnObjToBoardItem(data: BoardItem) {
-  private returnObjToBoardItem({
-    boardId,
-    title,
-    content,
-    creationDate,
-    modifyDate,
-    password,
-    secret,
-    createUser,
-    familyId,
-  }: {
-    boardId: number;
-    title: string;
-    content: string;
-    creationDate: DateString;
-    modifyDate: DateString;
-    password: string | null;
-    secret: number;
-    createUser: User;
-    familyId: number;
-  }) {
-    const newData = new BoardItem(
-      boardId,
-      title,
-      content,
-      creationDate,
-      modifyDate,
-      password,
-      Number(secret),
-      createUser,
-      familyId
-    );
-    console.log(newData);
-    return newData;
-  }
-
-  /** 댓글 Update
-   * feedManager에서 post 요청
-   * 성공시 Feed 댓글 list에 push
-   * 다시 렌더링 -> UI update
-   *
-   *
-   * 현재 방식 원래 있던 모든 Feed들을 붙이고
-   * Update시 제거 한 후 새로운 Feed를 붙여 , 다시 붙이는 방식
-   *
-   * 어차피 전부 reRendering인데 map 사용하면 안되나?
-   */
 }
 
 /**
@@ -452,7 +430,9 @@ class Feed {
     this.inputBtn.innerText = "등록";
     this.inputForm.appendChild(this.input);
     this.inputForm.appendChild(this.inputBtn);
-    this.inputBtn.addEventListener("click", (event) => this.submitValue(event));
+    this.inputBtn.addEventListener("click", (event) =>
+      this.inputBtnListener(event)
+    );
 
     this.feed.appendChild(this.feedContentTitle);
     this.feed.appendChild(this.removeBtn);
@@ -484,19 +464,48 @@ class Feed {
     if (this.toggleBtn.innerText === "open") {
       this.showContent();
       this.showComment();
+
+      this.toggleBtn.parentNode?.appendChild(this.inputForm);
+      console.log(`inputForm 붙이기 끝`);
     } else {
       this.hideComent();
       this.hideContent();
-      this.toggleBtn.parentNode?.removeChild(this.inputForm);
+      // this.toggleBtn.parentNode?.removeChild(this.inputForm);
     }
   }
 
-  /**댓글 등록  */
-  private submitValue(e: Event) {
-    console.log(this.input.value);
+  /**댓글 등록 eventListener */
+  private async inputBtnListener(e: Event) {
     e.preventDefault();
     // submit 이후 새로고침 방지
 
+    let status = await this.postNewComment();
+
+    if (status == 200) {
+      // get요청
+      let newComments = await feedManager.updateCommentList(
+        this.boardItem.boardId
+      );
+      this.boardItem.comments = newComments;
+
+      // reRender
+      this.commentUIrefresh();
+      this.commentUI = createComment(this.boardItem.comments);
+      this.toggleBtn.parentNode?.appendChild(this.commentUI);
+    } else if (status == 400) {
+    }
+
+    this.inputForm.reset();
+  }
+
+  private commentUIrefresh() {
+    while (this.commentUI.firstChild) {
+      this.commentUI.removeChild(this.commentUI.firstChild);
+    }
+  }
+
+  /** 등록한 댓글 post */
+  private async postNewComment() {
     /**댓글 생성 -> body에 boardComment 넣어서 보낼 것 */
     // 임시
     // 현재 user에 대한 정보가 없는데....
@@ -509,18 +518,25 @@ class Feed {
       user
     );
 
-    fetch(baseURL + `api/boards/comment/add`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        // 'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: JSON.stringify(data),
-    })
-      .then((res) => console.log(res))
-      .catch((error) => console.error(error));
+    try {
+      const res = await fetch(baseURL + `api/boards/comment/add`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
 
-    this.inputForm.reset();
+      return res.status;
+      if (res.status === 200) {
+        // alert("등록에 성공하였습니다");
+      } else if (res.status === 400) {
+        alert("등록에 실패하였습니다 :(");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("등록에 실패하였습니다 :(");
+    }
   }
 
   /**해당 Feed에 대한 내용[글] 붙이기 */
@@ -547,14 +563,14 @@ class Feed {
         // commentList 댓글로 이뤄진 div 태그 반환
         this.toggleBtn.parentNode?.appendChild(this.commentUI);
         this.needRequestComment = false;
+
+        console.log(`showComment() 끝`);
       });
     } else {
       this.toggleBtn.innerText = "close";
       this.commentUI = createComment(this.boardItem.comments);
       this.toggleBtn.parentNode?.appendChild(this.commentUI);
     }
-
-    this.toggleBtn.parentNode?.appendChild(this.inputForm);
   }
 
   private hideComent() {
