@@ -7,6 +7,7 @@ const mainContentElem: HTMLElement | null =
  * 글 추가 버튼, 글 list , 댓글 등
  * 편집 페이지는 제외
  */
+
 const allOfBoardContent: HTMLDivElement = document.createElement("div");
 allOfBoardContent.className = "allOfBoardContent";
 
@@ -23,8 +24,14 @@ const testUser = new User("test", "TESTNAME", "TESTNICKNAME", 0);
 /**임시 유저 정보 , 로그인 구현 후 삭제할 것 */
 const user = testUser;
 
+/** menuBar clickEvent */
+let memuBarElemLists = [];
+
+
+
 class InputFeedForm {
   inputFeedForm: HTMLFormElement = document.createElement("form");
+  inputsDiv: HTMLDivElement = document.createElement("div");
   inputContent: HTMLInputElement = document.createElement("input");
   inputTitle: HTMLInputElement = document.createElement("input");
   innerAddBtn: HTMLButtonElement = document.createElement("button");
@@ -32,8 +39,10 @@ class InputFeedForm {
   /** 피드 작성 폼 생성 */
   constructor() {
     this.innerAddBtn.innerText = "피드 등록";
-    this.inputFeedForm.appendChild(this.inputTitle);
-    this.inputFeedForm.appendChild(this.inputContent);
+
+    this.inputsDiv.appendChild(this.inputTitle);
+    this.inputsDiv.appendChild(this.inputContent);
+    this.inputFeedForm.appendChild(this.inputsDiv);
 
     this.inputFeedForm.appendChild(this.innerAddBtn);
     this.innerAddBtn.addEventListener("click", (e: Event) => {
@@ -43,7 +52,8 @@ class InputFeedForm {
     this.inputFeedForm.className = "inputFeedForm";
     this.inputTitle.className = "inputTitle";
     this.inputContent.className = "inputContent";
-    this.innerAddBtn.className = "inputAddBtn";
+    this.innerAddBtn.className = "inputBtn";
+    this.inputsDiv.className = "inputDiv";
   }
 
   private addListener(e: Event) {
@@ -57,13 +67,15 @@ class InputFeedForm {
   }
 
   show() {
-    allOfBoardContent?.appendChild(this.returnForm());
+    // allOfBoardContent?.appendChild(this.returnForm());
+    feedManager.returnAddBtnFeed().appendChild(this.returnForm());
   }
 
   close() {
-    if (this.inputFeedForm.parentNode === allOfBoardContent) {
-      allOfBoardContent?.removeChild(this.returnForm());
-    }
+    // if (this.inputFeedForm.parentNode === allOfBoardContent) {
+    //   allOfBoardContent?.removeChild(this.returnForm());
+    // }
+    feedManager.returnAddBtnFeed().removeChild(this.returnForm());
   }
 }
 
@@ -77,18 +89,22 @@ function createComment(DBcommentList: BoardComment[]) {
 
   for (let i = 0; i < DBcommentList.length; i++) {
     const comment = document.createElement("div");
-    const commentID = document.createElement("span");
-    const commentContent = document.createElement("span");
-    const commentUser = document.createElement("span");
+    const commentID = document.createElement("div");
+    const commentContent = document.createElement("div");
+    const commentUser = document.createElement("div");
 
     comment.className = "sigleComment";
-    commentID.className = "CommentID";
-    commentContent.className = "CommentContent";
+    commentID.className = "commentID";
+    commentUser.className = "commentUser";
+    commentContent.className = "commentContent";
 
-    commentID.innerText = DBcommentList[i].commentId.toString();
+    // commentID.innerText = DBcommentList[i].commentId.toString();
+    commentUser.innerText = DBcommentList[i].user.nickName;
+
     commentContent.innerText = DBcommentList[i].content;
 
-    comment.appendChild(commentID);
+    // comment.appendChild(commentID);
+    comment.appendChild(commentUser);
     comment.appendChild(commentContent);
     commentList.appendChild(comment);
   }
@@ -106,17 +122,25 @@ class FeedManager {
   private feedList: Feed[] = [];
   /** 피드 추가 버튼 생성 및  기능*/
   private addBtn: HTMLButtonElement = document.createElement("button");
+  private addBtnDiv: HTMLDivElement = document.createElement("div");
   private feedDiv: HTMLDivElement = document.createElement("div");
 
   constructor(familyId: number) {
+    // classname 선언
+    this.addBtn.className = "addFeedBtn";
+    this.feedDiv.className = "feedDiv";
+
     this.setData(familyId);
     this.addBtn.innerText = "피드 추가:+";
+    this.addBtn.classList.add("btnClass");
+    this.addBtnDiv.appendChild(this.addBtn);
+
     this.addBtn.addEventListener("click", () => {
       this.addListener();
     });
     // 맨위 addBtn -> 피드 추가
     board?.addEventListener("click", () => {
-      allOfBoardContent?.appendChild(this.addBtn);
+      allOfBoardContent?.appendChild(this.addBtnDiv);
     });
   }
 
@@ -130,6 +154,7 @@ class FeedManager {
       while (this.feedList.length > 0) {
         this.feedList.pop();
       }
+
       d.forEach((boardItem: BoardItem) => {
         this.feedList.push(
           new Feed(
@@ -365,6 +390,10 @@ class FeedManager {
     this.refresh();
     this.setFeedAtContent();
   }
+
+  returnAddBtnFeed() {
+    return this.addBtnDiv;
+  }
 }
 
 /**
@@ -398,16 +427,18 @@ class Feed {
     this.boardItem = boardItem;
     this.commentPromise = commentPromise;
     this.feed = document.createElement("div");
+    this.feed.className = `singleFeed`;
 
     this.feedContentTitle = document.createElement("span");
     this.feedContentTitle.className = `contentTitle`;
 
     //삭제 버튼
     this.removeBtn = document.createElement("button");
-    this.removeBtn.innerText = "remove";
+    this.removeBtn.innerText = "-";
     this.removeBtn.addEventListener("click", (event) => {
       this.removeListener(this.boardItem.boardId);
     });
+    this.removeBtn.className = `removeBtn`;
 
     //수정버튼
     this.editBtn = document.createElement("button");
@@ -415,6 +446,7 @@ class Feed {
     this.editBtn.addEventListener("click", () => {
       this.editListener();
     });
+    this.editBtn.className = `editBtn`;
 
     //토글 버튼
     this.toggleBtn = document.createElement("button");
@@ -422,6 +454,12 @@ class Feed {
     this.toggleBtn.addEventListener("click", (event) => {
       this.toggleListener(event);
     });
+    this.toggleBtn.className = `toggleBtn`;
+
+    /**btnClass css 입히기 */
+    this.removeBtn.classList.add("btnClass");
+    this.toggleBtn.classList.add("btnClass");
+    this.editBtn.classList.add("btnClass");
 
     /**댓글 입력, 등록 버튼  만들기 -> inputForm 생성  */
     this.inputForm = document.createElement("form");
@@ -433,6 +471,11 @@ class Feed {
     this.inputBtn.addEventListener("click", (event) =>
       this.inputBtnListener(event)
     );
+
+    /**input className 생성 */
+    this.inputForm.className = "inputForm";
+    this.input.className = "input";
+    this.inputBtn.className = "inputBtn";
 
     this.feed.appendChild(this.feedContentTitle);
     this.feed.appendChild(this.removeBtn);
@@ -466,11 +509,10 @@ class Feed {
       this.showComment();
 
       this.toggleBtn.parentNode?.appendChild(this.inputForm);
-      console.log(`inputForm 붙이기 끝`);
     } else {
       this.hideComent();
       this.hideContent();
-      // this.toggleBtn.parentNode?.removeChild(this.inputForm);
+      this.toggleBtn.parentNode?.removeChild(this.inputForm);
     }
   }
 
@@ -478,6 +520,11 @@ class Feed {
   private async inputBtnListener(e: Event) {
     e.preventDefault();
     // submit 이후 새로고침 방지
+
+    console.log(this.input.value.toString);
+    // if (this.input.) {
+    //   return alert("null");
+    // }
 
     let status = await this.postNewComment();
 
@@ -563,8 +610,6 @@ class Feed {
         // commentList 댓글로 이뤄진 div 태그 반환
         this.toggleBtn.parentNode?.appendChild(this.commentUI);
         this.needRequestComment = false;
-
-        console.log(`showComment() 끝`);
       });
     } else {
       this.toggleBtn.innerText = "close";
@@ -618,16 +663,29 @@ class Feed {
     const editPage = document.createElement("div");
 
     const inputFeedForm: HTMLFormElement = document.createElement("form");
+
+    const inputsDiv: HTMLDivElement = document.createElement("div");
     const inputContent: HTMLInputElement = document.createElement("input");
     const inputTitle: HTMLInputElement = document.createElement("input");
     const innerAddBtn: HTMLButtonElement = document.createElement("button");
+
+    /** className 지정 */
+    // inputFeedForm.className = "inputFeedForm";
+    inputFeedForm.className = "inputForm";
+    inputContent.className = "inputContent";
+    inputTitle.className = "inputTitle";
+    inputTitle.type = "textarea";
+    innerAddBtn.className = "inputBtn";
+    inputsDiv.className = "inputDiv";
 
     inputTitle.value = title;
     inputContent.value = content;
 
     innerAddBtn.innerText = "피드 재등록:+";
-    inputFeedForm.appendChild(inputTitle);
-    inputFeedForm.appendChild(inputContent);
+
+    inputsDiv.appendChild(inputTitle);
+    inputsDiv.appendChild(inputContent);
+    inputFeedForm.appendChild(inputsDiv);
     inputFeedForm.appendChild(innerAddBtn);
     editPage.appendChild(inputFeedForm);
     mainContentElem?.appendChild(editPage);

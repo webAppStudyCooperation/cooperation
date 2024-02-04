@@ -26,16 +26,20 @@ import { DateString } from "./models/back/boards.js";
 const testUser = new User("test", "TESTNAME", "TESTNICKNAME", 0);
 /**임시 유저 정보 , 로그인 구현 후 삭제할 것 */
 const user = testUser;
+/** menuBar clickEvent */
+let memuBarElemLists = [];
 class InputFeedForm {
     /** 피드 작성 폼 생성 */
     constructor() {
         this.inputFeedForm = document.createElement("form");
+        this.inputsDiv = document.createElement("div");
         this.inputContent = document.createElement("input");
         this.inputTitle = document.createElement("input");
         this.innerAddBtn = document.createElement("button");
         this.innerAddBtn.innerText = "피드 등록";
-        this.inputFeedForm.appendChild(this.inputTitle);
-        this.inputFeedForm.appendChild(this.inputContent);
+        this.inputsDiv.appendChild(this.inputTitle);
+        this.inputsDiv.appendChild(this.inputContent);
+        this.inputFeedForm.appendChild(this.inputsDiv);
         this.inputFeedForm.appendChild(this.innerAddBtn);
         this.innerAddBtn.addEventListener("click", (e) => {
             this.addListener(e);
@@ -43,7 +47,8 @@ class InputFeedForm {
         this.inputFeedForm.className = "inputFeedForm";
         this.inputTitle.className = "inputTitle";
         this.inputContent.className = "inputContent";
-        this.innerAddBtn.className = "inputAddBtn";
+        this.innerAddBtn.className = "inputBtn";
+        this.inputsDiv.className = "inputDiv";
     }
     addListener(e) {
         e.preventDefault();
@@ -54,12 +59,14 @@ class InputFeedForm {
         return this.inputFeedForm;
     }
     show() {
-        allOfBoardContent === null || allOfBoardContent === void 0 ? void 0 : allOfBoardContent.appendChild(this.returnForm());
+        // allOfBoardContent?.appendChild(this.returnForm());
+        feedManager.returnAddBtnFeed().appendChild(this.returnForm());
     }
     close() {
-        if (this.inputFeedForm.parentNode === allOfBoardContent) {
-            allOfBoardContent === null || allOfBoardContent === void 0 ? void 0 : allOfBoardContent.removeChild(this.returnForm());
-        }
+        // if (this.inputFeedForm.parentNode === allOfBoardContent) {
+        //   allOfBoardContent?.removeChild(this.returnForm());
+        // }
+        feedManager.returnAddBtnFeed().removeChild(this.returnForm());
     }
 }
 /** 게시글 InputFeedForm */
@@ -70,15 +77,18 @@ function createComment(DBcommentList) {
     commentList.className = "commentList";
     for (let i = 0; i < DBcommentList.length; i++) {
         const comment = document.createElement("div");
-        const commentID = document.createElement("span");
-        const commentContent = document.createElement("span");
-        const commentUser = document.createElement("span");
+        const commentID = document.createElement("div");
+        const commentContent = document.createElement("div");
+        const commentUser = document.createElement("div");
         comment.className = "sigleComment";
-        commentID.className = "CommentID";
-        commentContent.className = "CommentContent";
-        commentID.innerText = DBcommentList[i].commentId.toString();
+        commentID.className = "commentID";
+        commentUser.className = "commentUser";
+        commentContent.className = "commentContent";
+        // commentID.innerText = DBcommentList[i].commentId.toString();
+        commentUser.innerText = DBcommentList[i].user.nickName;
         commentContent.innerText = DBcommentList[i].content;
-        comment.appendChild(commentID);
+        // comment.appendChild(commentID);
+        comment.appendChild(commentUser);
         comment.appendChild(commentContent);
         commentList.appendChild(comment);
     }
@@ -95,15 +105,21 @@ class FeedManager {
         this.feedList = [];
         /** 피드 추가 버튼 생성 및  기능*/
         this.addBtn = document.createElement("button");
+        this.addBtnDiv = document.createElement("div");
         this.feedDiv = document.createElement("div");
+        // classname 선언
+        this.addBtn.className = "addFeedBtn";
+        this.feedDiv.className = "feedDiv";
         this.setData(familyId);
         this.addBtn.innerText = "피드 추가:+";
+        this.addBtn.classList.add("btnClass");
+        this.addBtnDiv.appendChild(this.addBtn);
         this.addBtn.addEventListener("click", () => {
             this.addListener();
         });
         // 맨위 addBtn -> 피드 추가
         board === null || board === void 0 ? void 0 : board.addEventListener("click", () => {
-            allOfBoardContent === null || allOfBoardContent === void 0 ? void 0 : allOfBoardContent.appendChild(this.addBtn);
+            allOfBoardContent === null || allOfBoardContent === void 0 ? void 0 : allOfBoardContent.appendChild(this.addBtnDiv);
         });
     }
     setData(familyId) {
@@ -308,6 +324,9 @@ class FeedManager {
             this.setFeedAtContent();
         });
     }
+    returnAddBtnFeed() {
+        return this.addBtnDiv;
+    }
 }
 /**
  * 임시로 familyId를 0으로 처리하였다.
@@ -323,26 +342,34 @@ class Feed {
         this.boardItem = boardItem;
         this.commentPromise = commentPromise;
         this.feed = document.createElement("div");
+        this.feed.className = `singleFeed`;
         this.feedContentTitle = document.createElement("span");
         this.feedContentTitle.className = `contentTitle`;
         //삭제 버튼
         this.removeBtn = document.createElement("button");
-        this.removeBtn.innerText = "remove";
+        this.removeBtn.innerText = "-";
         this.removeBtn.addEventListener("click", (event) => {
             this.removeListener(this.boardItem.boardId);
         });
+        this.removeBtn.className = `removeBtn`;
         //수정버튼
         this.editBtn = document.createElement("button");
         this.editBtn.innerText = "edit";
         this.editBtn.addEventListener("click", () => {
             this.editListener();
         });
+        this.editBtn.className = `editBtn`;
         //토글 버튼
         this.toggleBtn = document.createElement("button");
         this.toggleBtn.innerText = "open";
         this.toggleBtn.addEventListener("click", (event) => {
             this.toggleListener(event);
         });
+        this.toggleBtn.className = `toggleBtn`;
+        /**btnClass css 입히기 */
+        this.removeBtn.classList.add("btnClass");
+        this.toggleBtn.classList.add("btnClass");
+        this.editBtn.classList.add("btnClass");
         /**댓글 입력, 등록 버튼  만들기 -> inputForm 생성  */
         this.inputForm = document.createElement("form");
         this.input = document.createElement("input");
@@ -351,6 +378,10 @@ class Feed {
         this.inputForm.appendChild(this.input);
         this.inputForm.appendChild(this.inputBtn);
         this.inputBtn.addEventListener("click", (event) => this.inputBtnListener(event));
+        /**input className 생성 */
+        this.inputForm.className = "inputForm";
+        this.input.className = "input";
+        this.inputBtn.className = "inputBtn";
         this.feed.appendChild(this.feedContentTitle);
         this.feed.appendChild(this.removeBtn);
         this.feed.appendChild(this.editBtn);
@@ -372,17 +403,16 @@ class Feed {
     /**버튼 toggle */
     toggleListener(event) {
         // let targetParentNode = this.toggleBtn.parentNode;
-        var _a;
+        var _a, _b;
         if (this.toggleBtn.innerText === "open") {
             this.showContent();
             this.showComment();
             (_a = this.toggleBtn.parentNode) === null || _a === void 0 ? void 0 : _a.appendChild(this.inputForm);
-            console.log(`inputForm 붙이기 끝`);
         }
         else {
             this.hideComent();
             this.hideContent();
-            // this.toggleBtn.parentNode?.removeChild(this.inputForm);
+            (_b = this.toggleBtn.parentNode) === null || _b === void 0 ? void 0 : _b.removeChild(this.inputForm);
         }
     }
     /**댓글 등록 eventListener */
@@ -391,6 +421,10 @@ class Feed {
         return __awaiter(this, void 0, void 0, function* () {
             e.preventDefault();
             // submit 이후 새로고침 방지
+            console.log(this.input.value.toString);
+            // if (this.input.) {
+            //   return alert("null");
+            // }
             let status = yield this.postNewComment();
             if (status == 200) {
                 // get요청
@@ -467,7 +501,6 @@ class Feed {
                 // commentList 댓글로 이뤄진 div 태그 반환
                 (_a = this.toggleBtn.parentNode) === null || _a === void 0 ? void 0 : _a.appendChild(this.commentUI);
                 this.needRequestComment = false;
-                console.log(`showComment() 끝`);
             });
         }
         else {
@@ -518,14 +551,24 @@ class Feed {
     setEditPage(boardItem, title, content) {
         const editPage = document.createElement("div");
         const inputFeedForm = document.createElement("form");
+        const inputsDiv = document.createElement("div");
         const inputContent = document.createElement("input");
         const inputTitle = document.createElement("input");
         const innerAddBtn = document.createElement("button");
+        /** className 지정 */
+        // inputFeedForm.className = "inputFeedForm";
+        inputFeedForm.className = "inputForm";
+        inputContent.className = "inputContent";
+        inputTitle.className = "inputTitle";
+        inputTitle.type = "textarea";
+        innerAddBtn.className = "inputBtn";
+        inputsDiv.className = "inputDiv";
         inputTitle.value = title;
         inputContent.value = content;
         innerAddBtn.innerText = "피드 재등록:+";
-        inputFeedForm.appendChild(inputTitle);
-        inputFeedForm.appendChild(inputContent);
+        inputsDiv.appendChild(inputTitle);
+        inputsDiv.appendChild(inputContent);
+        inputFeedForm.appendChild(inputsDiv);
         inputFeedForm.appendChild(innerAddBtn);
         editPage.appendChild(inputFeedForm);
         mainContentElem === null || mainContentElem === void 0 ? void 0 : mainContentElem.appendChild(editPage);
