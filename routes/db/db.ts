@@ -170,11 +170,11 @@ function deleteComment(commentId: number, callback: (success: boolean) => {}) {
 }
 
 function insertFamily(
-  familyId: number,
   familyName: string,
+  userId: string,
   callback: (success: boolean) => {}
 ) {
-  let query = `INSERT INTO cooperation.family (familyId, familyName) VALUES (${familyId}, "${familyName}");`;
+  let query = `INSERT INTO cooperation.family (familyName, familyOwner) VALUES ("${familyName}", "${userId}");`;
   connection.query(query, (err: any, rows: any, fields: any) => {
     if (err) {
       callback(false);
@@ -187,12 +187,33 @@ function insertFamily(
 function getFamily(familyId: number, callback: (family: Family) => {}) {
   let q = `Select * From cooperation.family Where familyId = ${familyId}`;
   connection.query(q, (err: any, rows: any, fields: any) => {
-    if (err) {
+    if (err || rows[0] == null || rows[0] == undefined) {
       callback(new Family(-1, "no family"));
       return;
     }
     callback(new Family(rows[0]["familyId"], rows[0]["familyname"]));
   });
+}
+function getFamilyByName(name: string, callback: (family: Family) => {}) {
+  let q = `Select * From cooperation.family Where familyname = "${name}"`;
+  connection.query(q, (err: any, rows: any, fields: any) => {
+    if (err || rows[0] == null || rows[0] == undefined) {
+      callback(new Family(-1, "no family"));
+      return;
+    }
+    callback(new Family(rows[0]["familyId"], rows[0]["familyname"]));
+  });
+}
+
+function checkUserExist(userId: string, callback: (exist: boolean) => {}) {
+  let q = `Select * From cooperation.user where userId = "${userId}"`
+  connection.query(q, (err: any, rows: any, fields: any) => {
+    if(rows[0] == null || rows[0] == undefined) {
+      callback(false);
+    } else {
+      callback(true);
+    }
+  })
 }
 
 function checkUserPassword(userId: String, userPassword: String, callback: (jsonString: String, success: Boolean) => {}) {
@@ -238,6 +259,30 @@ function deleteUser(userId: String, callback: (jsonString: String, success: Bool
   });
 }
 
+function updateUserFamilyId(userId: string, familyId: number, makeMaster: boolean = false, callback: (jsonString: String, success: Boolean) => {}) {
+  var isMaster = 0
+  if(makeMaster) isMaster = 1
+  const q = `UPDATE user SET familyId = ${familyId}, isMaster = ${makeMaster} WHERE userId = "${userId}"`;
+  connection.query(q, (err: any, rows: any, fields: any) => {
+    if(err) {
+      callback(JSON.stringify("{'message': 업데이트 실패}"), false);
+    } else {
+      callback(JSON.stringify("{'message': 성공}"), true);
+    }
+  });
+}
+
+function checkUserIsOwner(userId: string, familyName: string, callback: (check: boolean) => {}) {
+  const q = `Select * from user Where userId = "${userId}"`
+  connection.query(q, (err: any, rows: any, fields: any) => {
+    if(err || rows[0] == null || rows[0] == undefined || rows[0]["isMaster"] == false) {
+      callback(false);
+    } else {
+      callback(true);
+    }
+  })
+}
+
 module.exports = {
   getAllBoard,
   getCommentsByBoardId,
@@ -251,4 +296,8 @@ module.exports = {
   checkUserPassword,
   insertUser,
   deleteUser,
+  getFamilyByName,
+  checkUserExist,
+  updateUserFamilyId,
+  checkUserIsOwner,
 };

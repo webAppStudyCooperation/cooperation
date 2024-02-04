@@ -16,27 +16,38 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `family`
+-- Table structure for table `board`
 --
 
-DROP TABLE IF EXISTS `family`;
+DROP TABLE IF EXISTS `board`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `family` (
+CREATE TABLE `board` (
+  `boardId` int NOT NULL AUTO_INCREMENT,
+  `title` varchar(45) COLLATE utf8mb3_bin DEFAULT NULL,
+  `content` varchar(1000) COLLATE utf8mb3_bin DEFAULT NULL,
+  `creationDate` datetime DEFAULT NULL,
+  `modifyDate` datetime DEFAULT NULL,
+  `password` varchar(45) COLLATE utf8mb3_bin DEFAULT NULL,
+  `secret` int NOT NULL DEFAULT '0',
+  `createUserId` varchar(45) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin DEFAULT NULL,
   `familyId` int NOT NULL,
-  `familyname` varchar(45) COLLATE utf8mb3_bin NOT NULL DEFAULT 'no name',
-  PRIMARY KEY (`familyId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
+  PRIMARY KEY (`boardId`),
+  UNIQUE KEY `id_UNIQUE` (`boardId`),
+  KEY `userId_idx` (`createUserId`),
+  KEY `familyIdBoard_idx` (`familyId`),
+  CONSTRAINT `createBoardUserId` FOREIGN KEY (`createUserId`) REFERENCES `user` (`userId`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `familyIdBoard` FOREIGN KEY (`familyId`) REFERENCES `family` (`familyId`)
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `family`
+-- Dumping data for table `board`
 --
 
-LOCK TABLES `family` WRITE;
-/*!40000 ALTER TABLE `family` DISABLE KEYS */;
-INSERT INTO `family` VALUES (0,'testFamily'),(1,'testFamilyNamedjf;klsdjfls');
-/*!40000 ALTER TABLE `family` ENABLE KEYS */;
+LOCK TABLES `board` WRITE;
+/*!40000 ALTER TABLE `board` DISABLE KEYS */;
+/*!40000 ALTER TABLE `board` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -48,4 +59,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-01-14 19:37:58
+-- Dump completed on 2024-02-04 18:19:40

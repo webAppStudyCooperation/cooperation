@@ -16,33 +16,27 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `user`
+-- Table structure for table `family`
 --
 
-DROP TABLE IF EXISTS `user`;
+DROP TABLE IF EXISTS `family`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `user` (
-  `userId` varchar(45) COLLATE utf8mb3_bin NOT NULL,
-  `userPassword` varchar(45) COLLATE utf8mb3_bin NOT NULL,
-  `name` varchar(45) COLLATE utf8mb3_bin NOT NULL DEFAULT 'no name',
-  `nickname` varchar(45) COLLATE utf8mb3_bin DEFAULT NULL,
-  `familyId` int NOT NULL,
-  PRIMARY KEY (`userId`),
-  UNIQUE KEY `id_UNIQUE` (`userId`),
-  KEY `familyId_idx` (`familyId`),
-  CONSTRAINT `userFamilyId` FOREIGN KEY (`familyId`) REFERENCES `family` (`familyId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
+CREATE TABLE `family` (
+  `familyId` int NOT NULL AUTO_INCREMENT,
+  `familyname` varchar(45) COLLATE utf8mb3_bin NOT NULL DEFAULT 'no name',
+  PRIMARY KEY (`familyId`)
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `user`
+-- Dumping data for table `family`
 --
 
-LOCK TABLES `user` WRITE;
-/*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES ('test','1234','태스트아이디','테스트닉네임',0);
-/*!40000 ALTER TABLE `user` ENABLE KEYS */;
+LOCK TABLES `family` WRITE;
+/*!40000 ALTER TABLE `family` DISABLE KEYS */;
+INSERT INTO `family` VALUES (0,'noFamily'),(14,'testFFFF12345');
+/*!40000 ALTER TABLE `family` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -54,4 +48,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-01-14 19:37:57
+-- Dump completed on 2024-02-04 18:19:39
