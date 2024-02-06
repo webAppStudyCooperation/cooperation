@@ -5,7 +5,7 @@
   "scripts": {
     "start": "npm run build_front && npm run build_back && ts-node ./bin/www",
     "build_back": "npx tsc -p .",
-    "build_front": "cd ./public && npx tsc -p . && sass stylesheets/style.scss stylesheets/style.css && cd ..",
+    "build_front": "cd ./public && npx tsc -p .  && cd ..",
     "dev": "concurrently \"npx tsc --watch\" \"nodemon index.ts\""
   },
   "dependencies": {

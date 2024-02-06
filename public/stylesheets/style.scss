@@ -15,7 +15,6 @@
 }
 
 body {
-  padding: 50px;
   font-family: "seolleimcool-SemiBold";
   font-size: 20px;
   background-color: #b4d4ff;
@@ -32,8 +31,9 @@ header {
 }
 
 .menuBar {
-  height: 100px;
-  padding: 2rem;
+  height: 10%;
+  width: 100%;
+  padding: 1rem;
   margin: 2rem;
   display: flex;
   flex-direction: row;
@@ -46,7 +46,7 @@ header {
 
   position: sticky;
   p:hover {
-    color: white;
+    color: red;
   }
 }
 

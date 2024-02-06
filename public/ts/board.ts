@@ -24,11 +24,6 @@ const testUser = new User("test", "TESTNAME", "TESTNICKNAME", 0);
 /**임시 유저 정보 , 로그인 구현 후 삭제할 것 */
 const user = testUser;
 
-/** menuBar clickEvent */
-let memuBarElemLists = [];
-
-
-
 class InputFeedForm {
   inputFeedForm: HTMLFormElement = document.createElement("form");
   inputsDiv: HTMLDivElement = document.createElement("div");
@@ -82,35 +77,6 @@ class InputFeedForm {
 /** 게시글 InputFeedForm */
 const inputFeedForm: InputFeedForm = new InputFeedForm();
 
-/**해당 게시글의 댓글 생성*/
-function createComment(DBcommentList: BoardComment[]) {
-  const commentList = document.createElement("div");
-  commentList.className = "commentList";
-
-  for (let i = 0; i < DBcommentList.length; i++) {
-    const comment = document.createElement("div");
-    const commentID = document.createElement("div");
-    const commentContent = document.createElement("div");
-    const commentUser = document.createElement("div");
-
-    comment.className = "sigleComment";
-    commentID.className = "commentID";
-    commentUser.className = "commentUser";
-    commentContent.className = "commentContent";
-
-    // commentID.innerText = DBcommentList[i].commentId.toString();
-    commentUser.innerText = DBcommentList[i].user.nickName;
-
-    commentContent.innerText = DBcommentList[i].content;
-
-    // comment.appendChild(commentID);
-    comment.appendChild(commentUser);
-    comment.appendChild(commentContent);
-    commentList.appendChild(comment);
-  }
-  return commentList;
-}
-
 /* single Feed, 토글 버튼, 댓글 */
 // const FeedState = {
 //   CLOSE: "close",
@@ -155,6 +121,15 @@ class FeedManager {
         this.feedList.pop();
       }
 
+      d.sort(function (a: BoardItem, b: BoardItem) {
+        // a.boardId as unknown as number;
+        // b.boardId as unknown as number;
+        if (a.boardId < b.boardId) return 1;
+        if (a.boardId > b.boardId) return -1;
+        return 0;
+      });
+      // 내림차순
+
       d.forEach((boardItem: BoardItem) => {
         this.feedList.push(
           new Feed(
@@ -165,6 +140,8 @@ class FeedManager {
         );
       });
     });
+
+    console.log(this.feedList);
     // endLoding
   }
 
@@ -535,9 +512,11 @@ class Feed {
       );
       this.boardItem.comments = newComments;
 
+      console.log(this.boardItem.comments);
+
       // reRender
       this.commentUIrefresh();
-      this.commentUI = createComment(this.boardItem.comments);
+      this.commentUI = this.createComment(this.boardItem.comments);
       this.toggleBtn.parentNode?.appendChild(this.commentUI);
     } else if (status == 400) {
     }
@@ -606,14 +585,14 @@ class Feed {
           this.boardItem.comments.push(elem);
         });
         this.toggleBtn.innerText = "close";
-        this.commentUI = createComment(this.boardItem.comments);
+        this.commentUI = this.createComment(this.boardItem.comments);
         // commentList 댓글로 이뤄진 div 태그 반환
         this.toggleBtn.parentNode?.appendChild(this.commentUI);
         this.needRequestComment = false;
       });
     } else {
       this.toggleBtn.innerText = "close";
-      this.commentUI = createComment(this.boardItem.comments);
+      this.commentUI = this.createComment(this.boardItem.comments);
       this.toggleBtn.parentNode?.appendChild(this.commentUI);
     }
   }
@@ -699,6 +678,86 @@ class Feed {
       mainContentElem?.removeChild(editPage);
       mainContentElem?.appendChild(allOfBoardContent as HTMLElement);
     });
+  }
+
+  /**해당 게시글의 댓글 생성*/
+  createComment(DBcommentList: BoardComment[]) {
+    const commentList = document.createElement("div");
+    commentList.className = "commentList";
+
+    DBcommentList.sort(function (a: BoardComment, b: BoardComment) {
+      if (a.commentId < b.commentId) return 1;
+      if (a.commentId > b.commentId) return -1;
+      return 0;
+    });
+
+    for (let i = 0; i < DBcommentList.length; i++) {
+      const comment = document.createElement("div");
+      const commentID = document.createElement("div");
+      const commentContent = document.createElement("div");
+      const commentUser = document.createElement("div");
+      const commentBtn = document.createElement("button");
+
+      comment.className = "sigleComment";
+      commentID.className = "commentID";
+      commentUser.className = "commentUser";
+      commentContent.className = "commentContent";
+      commentBtn.classList.add("btnClass");
+      commentBtn.innerText = "삭제";
+
+      commentBtn.addEventListener("click", () =>
+        this.deleteComment(DBcommentList[i].commentId)
+      );
+
+      // commentID.innerText = DBcommentList[i].commentId.toString();
+      commentUser.innerText = DBcommentList[i].user.nickName;
+
+      commentContent.innerText = DBcommentList[i].content;
+
+      // comment.appendChild(commentID);
+      comment.appendChild(commentUser);
+      comment.appendChild(commentContent);
+      comment.appendChild(commentBtn);
+      commentList.appendChild(comment);
+    }
+    return commentList;
+  }
+
+  /**
+   * 댓글 삭제 api
+   * commentId를 body에 넣어 보낸다.
+   * "body": {
+   *  "commentId": 12
+   * }
+   */
+
+  /** 게시글 댓글 삭제 후 UI update */
+  deleteComment(commentId: number) {
+    fetch(baseURL + `api/boards/comment/delete`, {
+      method: "DELETE",
+      headers: {
+        "Content-type": "application/json",
+      },
+      body: JSON.stringify({ commentId: commentId }),
+    })
+      .then((res) => {
+        if (res.status === 200) {
+          // 해당 commentId만 제외한 후 그리기
+
+          //reRender
+          this.commentUIrefresh();
+          this.boardItem.comments.filter((e) => e.commentId != commentId);
+
+          console.log(this.boardItem.comments);
+        } else if (res.status === 400) {
+          alert("삭제에 실패하였습니다 :(");
+        }
+      })
+      .then((response) => {})
+      .catch((err) => {
+        console.log(err);
+        alert("삭제에 실패하였습니다 :(");
+      });
   }
 }
 
