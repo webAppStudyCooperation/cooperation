@@ -4,10 +4,9 @@ import { BoardComment } from "./models/back/comments.js";
 import { User } from "./models/back/user.js";
 import { DateString } from "./models/back/boards.js";
 import { copyFileSync } from "fs";
-import { FeedManager } from "./board.js";
-import { cli } from "winston/lib/winston/config/index.js";
+import { feedManager } from "./board.js";
 
-const login: HTMLElement | null = document.getElementById("login");
+const login: HTMLElement | null = document.getElementById("sign");
 const board: HTMLElement | null = document.getElementById("board");
 const chat: HTMLElement | null = document.getElementById("chat");
 const game: HTMLElement | null = document.getElementById("game");
@@ -22,15 +21,20 @@ let user = testUser;
 
 // setFeedAtContent
 login?.addEventListener("click", () => {
+    clearMainContentArea()
     onClickMenu(login)
 });
 board?.addEventListener("click", () => {
+    clearMainContentArea()
+    feedManager.setFeedAtContent()
     onClickMenu(board)
 });
 chat?.addEventListener("click", () => {
+    clearMainContentArea()
     onClickMenu(chat)
 });
 game?.addEventListener("click", () => {
+    clearMainContentArea()
     onClickMenu(game)
 });
 
@@ -49,12 +53,19 @@ function setColorDefault(
     elem: HTMLElement | null
 ){
     if(elem == null) return;
-    elem.style.color = "black"
+    elem.className = "notSelectedEffect"
 }
 
 function setColorSelected(
     elem: HTMLElement | null
 ) {
     if(elem == null) return;
-    elem.style.color = "white"
+    elem.className = "selectedEffect"
+}
+
+/***임시 */
+function clearMainContentArea() {
+    mainContentElem?.childNodes.forEach((child:Node) => {
+        mainContentElem?.removeChild(child)
+    })
 }

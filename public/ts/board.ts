@@ -371,8 +371,7 @@ export class FeedManager {
 
 const testUser = new User("test", "TESTNAME", "TESTNICKNAME", 0);
 let user = testUser;
-const feedManager: FeedManager = new FeedManager(user)
-feedManager.setFeedAtContent()
+export const feedManager: FeedManager = new FeedManager(user)
 
 /** 하나의 피드 -> 하나의 boardItem 정보들로 구성*/
 class Feed {

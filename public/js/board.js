@@ -7,8 +7,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-const board = document.getElementById("board");
-const mainContentElem = document.getElementById("mainContent");
+import { baseURL } from "./config.js";
+import { BoardItem } from "./models/back/boards.js";
+import { BoardComment } from "./models/back/comments.js";
+import { User } from "./models/back/user.js";
+import { DateString } from "./models/back/boards.js";
+// import { inputFeedForm } from "../frontModel/inputFeedForm";
+// const board: HTMLElement | null = document.getElementById("board");
+// const mainContentElem: HTMLElement | null =
+//   document.getElementById("mainContent");
 /**
  * 게시물 관련한 모든 content를 담을 Div
  * 글 추가 버튼, 글 list , 댓글 등
@@ -16,16 +23,6 @@ const mainContentElem = document.getElementById("mainContent");
  */
 const allOfBoardContent = document.createElement("div");
 allOfBoardContent.className = "allOfBoardContent";
-import { baseURL } from "./config.js";
-import { BoardItem } from "./models/back/boards.js";
-import { BoardComment } from "./models/back/comments.js";
-import { User } from "./models/back/user.js";
-import { DateString } from "./models/back/boards.js";
-// import { inputFeedForm } from "../frontModel/inputFeedForm";
-/**임시 유저 정보 , 로그인 구현 후 삭제할 것 */
-const testUser = new User("test", "TESTNAME", "TESTNICKNAME", 0);
-/**임시 유저 정보 , 로그인 구현 후 삭제할 것 */
-const user = testUser;
 class InputFeedForm {
     /** 피드 작성 폼 생성 */
     constructor() {
@@ -67,35 +64,35 @@ class InputFeedForm {
         feedManager.returnAddBtnFeed().removeChild(this.returnForm());
     }
 }
-/** 게시글 InputFeedForm */
-const inputFeedForm = new InputFeedForm();
 /* single Feed, 토글 버튼, 댓글 */
 // const FeedState = {
 //   CLOSE: "close",
 //   OPEN: "open",
 // };
-class FeedManager {
-    constructor(familyId) {
+export class FeedManager {
+    constructor(user) {
         this.data = [];
         this.feedList = [];
         /** 피드 추가 버튼 생성 및  기능*/
         this.addBtn = document.createElement("button");
         this.addBtnDiv = document.createElement("div");
         this.feedDiv = document.createElement("div");
+        this.mainContentElem = document.getElementById("mainContent");
+        /** 게시글 InputFeedForm */
+        this.inputFeedForm = new InputFeedForm();
+        this.user = user;
         // classname 선언
         this.addBtn.className = "addFeedBtn";
         this.feedDiv.className = "feedDiv";
-        this.setData(familyId);
+        this.setData(this.user.familyId);
         this.addBtn.innerText = "피드 추가:+";
         this.addBtn.classList.add("btnClass");
         this.addBtnDiv.appendChild(this.addBtn);
         this.addBtn.addEventListener("click", () => {
-            this.addListener();
+            this.showInputForm();
         });
         // 맨위 addBtn -> 피드 추가
-        board === null || board === void 0 ? void 0 : board.addEventListener("click", () => {
-            allOfBoardContent === null || allOfBoardContent === void 0 ? void 0 : allOfBoardContent.appendChild(this.addBtnDiv);
-        });
+        allOfBoardContent === null || allOfBoardContent === void 0 ? void 0 : allOfBoardContent.appendChild(this.addBtnDiv);
     }
     setData(familyId) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -247,10 +244,11 @@ class FeedManager {
      * 3. 최종 mainContent에 allofBoardConent append
      */
     setFeedAtContent() {
+        var _a;
         console.log("setFeedAtContent시작");
         this.getFeeds().forEach((e) => { var _a; return (_a = this.feedDiv) === null || _a === void 0 ? void 0 : _a.appendChild(e.returnSingle()); });
         allOfBoardContent.appendChild(this.feedDiv);
-        mainContentElem === null || mainContentElem === void 0 ? void 0 : mainContentElem.appendChild(allOfBoardContent);
+        (_a = this.mainContentElem) === null || _a === void 0 ? void 0 : _a.appendChild(allOfBoardContent);
     }
     /** 게시글 Update
      * FeedManager에서 관리
@@ -260,8 +258,8 @@ class FeedManager {
      * FeedManager에서 FeedList에 push한다s
      *
      */
-    addListener() {
-        inputFeedForm.show();
+    showInputForm() {
+        this.inputFeedForm.show();
     }
     /**피드 등록시 (게시글 등록) 서버에게 post 요청 */
     postNewFeed(titleValue, contentValue) {
@@ -290,7 +288,7 @@ class FeedManager {
         })
             .then((res) => {
             if (res.status === 200) {
-                inputFeedForm.returnForm().reset();
+                this.inputFeedForm.returnForm().reset();
                 this.afterPostNewFeed(user);
                 console.log(`success!`);
             }
@@ -314,17 +312,16 @@ class FeedManager {
         return this.addBtnDiv;
     }
 }
-/**
- * 임시로 familyId를 0으로 처리하였다.
- * 로그인 기능 구현 이후 이부분 로그인된 사용자의 familyId를 값으로 넣어주어야 한다.
- */
-const feedManager = new FeedManager(0);
+const testUser = new User("test", "TESTNAME", "TESTNICKNAME", 0);
+let user = testUser;
+export const feedManager = new FeedManager(user);
 /** 하나의 피드 -> 하나의 boardItem 정보들로 구성*/
 class Feed {
     constructor(boardItem, title, commentPromise) {
         this.needRequestComment = true;
         this.commentUI = document.createElement("div");
         this.contentUI = document.createElement("div");
+        this.mainContentElem = document.getElementById("mainContent");
         this.boardItem = boardItem;
         this.commentPromise = commentPromise;
         this.feed = document.createElement("div");
@@ -403,34 +400,28 @@ class Feed {
     }
     /**댓글 등록 eventListener */
     inputBtnListener(e) {
-        var _a;
         return __awaiter(this, void 0, void 0, function* () {
             e.preventDefault();
             // submit 이후 새로고침 방지
             console.log(this.input.value.toString);
-            // if (this.input.) {
-            //   return alert("null");
-            // }
-            let status = yield this.postNewComment();
-            if (status == 200) {
-                // get요청
-                let newComments = yield feedManager.updateCommentList(this.boardItem.boardId);
-                this.boardItem.comments = newComments;
-                console.log(this.boardItem.comments);
-                // reRender
-                this.commentUIrefresh();
-                this.commentUI = this.createComment(this.boardItem.comments);
-                (_a = this.toggleBtn.parentNode) === null || _a === void 0 ? void 0 : _a.appendChild(this.commentUI);
-            }
-            else if (status == 400) {
-            }
+            yield this.postNewComment();
+            // reRenderㄴ
+            this.commentUIrefresh();
             this.inputForm.reset();
         });
     }
     commentUIrefresh() {
-        while (this.commentUI.firstChild) {
-            this.commentUI.removeChild(this.commentUI.firstChild);
-        }
+        this.clearCommentUI();
+        this.initCommentUI();
+    }
+    clearCommentUI() {
+        var _a;
+        (_a = this.toggleBtn.parentNode) === null || _a === void 0 ? void 0 : _a.removeChild(this.commentUI);
+    }
+    initCommentUI() {
+        var _a;
+        this.commentUI = this.createComment(this.boardItem.comments);
+        (_a = this.toggleBtn.parentNode) === null || _a === void 0 ? void 0 : _a.appendChild(this.commentUI);
     }
     /** 등록한 댓글 post */
     postNewComment() {
@@ -448,12 +439,12 @@ class Feed {
                     },
                     body: JSON.stringify(data),
                 });
-                return res.status;
-                if (res.status === 200) {
-                    // alert("등록에 성공하였습니다");
+                if (res.status == 200) {
+                    this.boardItem.comments.push(data);
+                    alert("등록 성공");
                 }
-                else if (res.status === 400) {
-                    alert("등록에 실패하였습니다 :(");
+                else if (res.status == 400) {
+                    alert("등록 실패");
                 }
             }
             catch (error) {
@@ -528,7 +519,8 @@ class Feed {
         return this.boardItem;
     }
     editListener() {
-        mainContentElem === null || mainContentElem === void 0 ? void 0 : mainContentElem.removeChild(allOfBoardContent);
+        var _a;
+        (_a = this.mainContentElem) === null || _a === void 0 ? void 0 : _a.removeChild(allOfBoardContent);
         const thisItem = this.getDataForEdit();
         this.setEditPage(thisItem, thisItem.title, thisItem.content);
     }
@@ -536,6 +528,7 @@ class Feed {
      * 편집 페이지 만들기
      */
     setEditPage(boardItem, title, content) {
+        var _a;
         const editPage = document.createElement("div");
         const inputFeedForm = document.createElement("form");
         const inputsDiv = document.createElement("div");
@@ -558,13 +551,14 @@ class Feed {
         inputFeedForm.appendChild(inputsDiv);
         inputFeedForm.appendChild(innerAddBtn);
         editPage.appendChild(inputFeedForm);
-        mainContentElem === null || mainContentElem === void 0 ? void 0 : mainContentElem.appendChild(editPage);
+        (_a = this.mainContentElem) === null || _a === void 0 ? void 0 : _a.appendChild(editPage);
         innerAddBtn.addEventListener("click", (e) => {
+            var _a, _b;
             e.preventDefault();
             feedManager.editFeed(boardItem, inputTitle.value, inputContent.value);
             // editPage 제거,  allOfBoardContent 붙이기, this.feedList 수정
-            mainContentElem === null || mainContentElem === void 0 ? void 0 : mainContentElem.removeChild(editPage);
-            mainContentElem === null || mainContentElem === void 0 ? void 0 : mainContentElem.appendChild(allOfBoardContent);
+            (_a = this.mainContentElem) === null || _a === void 0 ? void 0 : _a.removeChild(editPage);
+            (_b = this.mainContentElem) === null || _b === void 0 ? void 0 : _b.appendChild(allOfBoardContent);
         });
     }
     /**해당 게시글의 댓글 생성*/
@@ -622,6 +616,7 @@ class Feed {
             if (res.status === 200) {
                 // 해당 commentId만 제외한 후 그리기
                 //reRender
+                this.boardItem.comments = this.boardItem.comments.filter((e) => e.commentId != commentId);
                 this.commentUIrefresh();
                 this.boardItem.comments = this.boardItem.comments.filter((e) => e.commentId != commentId);
                 console.log(this.boardItem.comments);
@@ -637,7 +632,3 @@ class Feed {
         });
     }
 }
-// setFeedAtContent
-board === null || board === void 0 ? void 0 : board.addEventListener("click", () => {
-    feedManager.setFeedAtContent();
-});

@@ -42,9 +42,14 @@ header {
   background-color: rgba(134, 182, 246, 0.7);
   position: sticky;
 }
-.menuBar p:hover {
+
+.notSelectedEffect:hover{
   color: white;
 }
+.selectedEffect {
+  color: white;
+}
+
 
 .content {
   background-color: rgb(238, 245, 255);
@@ -96,6 +101,10 @@ a {
 .inputDiv {
   display: flex;
   flex-direction: column;
+  background-color: dodgerblue;
+  border-radius: 10rem;
+  padding-left: 5%;
+  padding-right: 5%;
 }
 
 .inputTitle {
