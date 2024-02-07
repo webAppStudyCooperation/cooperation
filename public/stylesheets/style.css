@@ -103,6 +103,7 @@ a {
   border-radius: 1em;
   border-style: none;
   word-break: normal;
+  margin: 0.5em;
 }
 
 .inputContent {
@@ -110,6 +111,7 @@ a {
   border-radius: 1em;
   border-style: none;
   word-break: normal;
+  margin: 0.5em;
 }
 
 .btnClass,

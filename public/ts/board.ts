@@ -746,7 +746,9 @@ class Feed {
 
           //reRender
           this.commentUIrefresh();
-          this.boardItem.comments.filter((e) => e.commentId != commentId);
+          this.boardItem.comments = this.boardItem.comments.filter(
+            (e) => e.commentId != commentId
+          );
 
           console.log(this.boardItem.comments);
         } else if (res.status === 400) {
