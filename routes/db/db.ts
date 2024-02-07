@@ -158,7 +158,7 @@ function insertComment(
 
 function deleteComment(commentId: number, callback: (success: boolean) => {}) {
   connection.query(
-    `delete from comment where commentid = ${commentId}`,
+    `delete from comment where idcomment = ${commentId}`,
     (err: any, rows: any, fields: any) => {
       if (err) {
         callback(false);
