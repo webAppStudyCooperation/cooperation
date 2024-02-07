@@ -1,16 +1,3 @@
-const board: HTMLElement | null = document.getElementById("board");
-const mainContentElem: HTMLElement | null =
-  document.getElementById("mainContent");
-
-/**
- * 게시물 관련한 모든 content를 담을 Div
- * 글 추가 버튼, 글 list , 댓글 등
- * 편집 페이지는 제외
- */
-
-const allOfBoardContent: HTMLDivElement = document.createElement("div");
-allOfBoardContent.className = "allOfBoardContent";
-
 import { baseURL } from "./config.js";
 import { BoardItem } from "./models/back/boards.js";
 import { BoardComment } from "./models/back/comments.js";
@@ -19,10 +6,18 @@ import { DateString } from "./models/back/boards.js";
 import { copyFileSync } from "fs";
 // import { inputFeedForm } from "../frontModel/inputFeedForm";
 
-/**임시 유저 정보 , 로그인 구현 후 삭제할 것 */
-const testUser = new User("test", "TESTNAME", "TESTNICKNAME", 0);
-/**임시 유저 정보 , 로그인 구현 후 삭제할 것 */
-const user = testUser;
+
+// const board: HTMLElement | null = document.getElementById("board");
+// const mainContentElem: HTMLElement | null =
+//   document.getElementById("mainContent");
+
+/**
+ * 게시물 관련한 모든 content를 담을 Div
+ * 글 추가 버튼, 글 list , 댓글 등
+ * 편집 페이지는 제외
+ */
+const allOfBoardContent: HTMLDivElement = document.createElement("div");
+allOfBoardContent.className = "allOfBoardContent";
 
 class InputFeedForm {
   inputFeedForm: HTMLFormElement = document.createElement("form");
@@ -74,40 +69,41 @@ class InputFeedForm {
   }
 }
 
-/** 게시글 InputFeedForm */
-const inputFeedForm: InputFeedForm = new InputFeedForm();
-
 /* single Feed, 토글 버튼, 댓글 */
 // const FeedState = {
 //   CLOSE: "close",
 //   OPEN: "open",
 // };
 
-class FeedManager {
+export class FeedManager {
   private data: BoardItem[] = [];
   private feedList: Feed[] = [];
   /** 피드 추가 버튼 생성 및  기능*/
   private addBtn: HTMLButtonElement = document.createElement("button");
   private addBtnDiv: HTMLDivElement = document.createElement("div");
   private feedDiv: HTMLDivElement = document.createElement("div");
+  private mainContentElem: HTMLElement | null = document.getElementById("mainContent");
+  private user: User
 
-  constructor(familyId: number) {
+  /** 게시글 InputFeedForm */
+  private inputFeedForm: InputFeedForm = new InputFeedForm();
+
+  constructor(user: User) {
+    this.user = user;
     // classname 선언
     this.addBtn.className = "addFeedBtn";
     this.feedDiv.className = "feedDiv";
 
-    this.setData(familyId);
+    this.setData(this.user.familyId);
     this.addBtn.innerText = "피드 추가:+";
     this.addBtn.classList.add("btnClass");
     this.addBtnDiv.appendChild(this.addBtn);
 
     this.addBtn.addEventListener("click", () => {
-      this.addListener();
+      this.showInputForm();
     });
     // 맨위 addBtn -> 피드 추가
-    board?.addEventListener("click", () => {
-      allOfBoardContent?.appendChild(this.addBtnDiv);
-    });
+    allOfBoardContent?.appendChild(this.addBtnDiv);
   }
 
   private async setData(familyId: number) {
@@ -302,7 +298,7 @@ class FeedManager {
     console.log("setFeedAtContent시작");
     this.getFeeds().forEach((e) => this.feedDiv?.appendChild(e.returnSingle()));
     allOfBoardContent.appendChild(this.feedDiv);
-    mainContentElem?.appendChild(allOfBoardContent);
+    this.mainContentElem?.appendChild(allOfBoardContent);
   }
 
   /** 게시글 Update
@@ -314,8 +310,8 @@ class FeedManager {
    *
    */
 
-  private addListener() {
-    inputFeedForm.show();
+  private showInputForm() {
+    this.inputFeedForm.show();
   }
 
   /**피드 등록시 (게시글 등록) 서버에게 post 요청 */
@@ -347,7 +343,7 @@ class FeedManager {
     })
       .then((res) => {
         if (res.status === 200) {
-          inputFeedForm.returnForm().reset();
+          this.inputFeedForm.returnForm().reset();
 
           this.afterPostNewFeed(user);
 
@@ -373,11 +369,10 @@ class FeedManager {
   }
 }
 
-/**
- * 임시로 familyId를 0으로 처리하였다.
- * 로그인 기능 구현 이후 이부분 로그인된 사용자의 familyId를 값으로 넣어주어야 한다.
- */
-const feedManager = new FeedManager(0);
+const testUser = new User("test", "TESTNAME", "TESTNICKNAME", 0);
+let user = testUser;
+const feedManager: FeedManager = new FeedManager(user)
+feedManager.setFeedAtContent()
 
 /** 하나의 피드 -> 하나의 boardItem 정보들로 구성*/
 class Feed {
@@ -395,6 +390,7 @@ class Feed {
   boardItem: BoardItem;
   private commentUI: HTMLDivElement = document.createElement("div");
   private contentUI: HTMLDivElement = document.createElement("div");
+  private mainContentElem: HTMLElement | null = document.getElementById("mainContent");
 
   constructor(
     boardItem: BoardItem,
@@ -497,37 +493,26 @@ class Feed {
   private async inputBtnListener(e: Event) {
     e.preventDefault();
     // submit 이후 새로고침 방지
-
     console.log(this.input.value.toString);
-    // if (this.input.) {
-    //   return alert("null");
-    // }
-
-    let status = await this.postNewComment();
-
-    if (status == 200) {
-      // get요청
-      let newComments = await feedManager.updateCommentList(
-        this.boardItem.boardId
-      );
-      this.boardItem.comments = newComments;
-
-      console.log(this.boardItem.comments);
-
-      // reRender
-      this.commentUIrefresh();
-      this.commentUI = this.createComment(this.boardItem.comments);
-      this.toggleBtn.parentNode?.appendChild(this.commentUI);
-    } else if (status == 400) {
-    }
+    
+    await this.postNewComment();
+    // reRenderㄴ
+    this.commentUIrefresh();
 
     this.inputForm.reset();
   }
 
   private commentUIrefresh() {
-    while (this.commentUI.firstChild) {
-      this.commentUI.removeChild(this.commentUI.firstChild);
-    }
+    this.clearCommentUI()
+    this.initCommentUI()
+  }
+
+  private clearCommentUI(){
+    this.toggleBtn.parentNode?.removeChild(this.commentUI)
+  }
+  private initCommentUI(){
+    this.commentUI = this.createComment(this.boardItem.comments);
+    this.toggleBtn.parentNode?.appendChild(this.commentUI);
   }
 
   /** 등록한 댓글 post */
@@ -553,11 +538,11 @@ class Feed {
         body: JSON.stringify(data),
       });
 
-      return res.status;
-      if (res.status === 200) {
-        // alert("등록에 성공하였습니다");
-      } else if (res.status === 400) {
-        alert("등록에 실패하였습니다 :(");
+      if (res.status == 200) {
+        this.boardItem.comments.push(data)
+        alert("등록 성공")
+      } else if (res.status == 400) {
+        alert("등록 실패")
       }
     } catch (error) {
       console.error(error);
@@ -630,7 +615,7 @@ class Feed {
   }
 
   private editListener() {
-    mainContentElem?.removeChild(allOfBoardContent as HTMLElement);
+    this.mainContentElem?.removeChild(allOfBoardContent as HTMLElement);
     const thisItem = this.getDataForEdit();
     this.setEditPage(thisItem, thisItem.title, thisItem.content);
   }
@@ -667,7 +652,7 @@ class Feed {
     inputFeedForm.appendChild(inputsDiv);
     inputFeedForm.appendChild(innerAddBtn);
     editPage.appendChild(inputFeedForm);
-    mainContentElem?.appendChild(editPage);
+    this.mainContentElem?.appendChild(editPage);
 
     innerAddBtn.addEventListener("click", (e: Event) => {
       e.preventDefault();
@@ -675,8 +660,8 @@ class Feed {
       feedManager.editFeed(boardItem, inputTitle.value, inputContent.value);
 
       // editPage 제거,  allOfBoardContent 붙이기, this.feedList 수정
-      mainContentElem?.removeChild(editPage);
-      mainContentElem?.appendChild(allOfBoardContent as HTMLElement);
+      this.mainContentElem?.removeChild(editPage);
+      this.mainContentElem?.appendChild(allOfBoardContent as HTMLElement);
     });
   }
 
@@ -745,6 +730,7 @@ class Feed {
           // 해당 commentId만 제외한 후 그리기
 
           //reRender
+          this.boardItem.comments = this.boardItem.comments.filter((e) => e.commentId != commentId);
           this.commentUIrefresh();
           this.boardItem.comments = this.boardItem.comments.filter(
             (e) => e.commentId != commentId
@@ -762,8 +748,3 @@ class Feed {
       });
   }
 }
-
-// setFeedAtContent
-board?.addEventListener("click", () => {
-  feedManager.setFeedAtContent();
-});
