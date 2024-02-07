@@ -5,7 +5,7 @@ var router = express.Router();
 const db = require("./db/db"); // db 모듈 추가
 
 /**
- * ~/user/sign
+ * ~/user/login
  *
  * "body": {
  *  "userId": "sdf",
@@ -13,7 +13,7 @@ const db = require("./db/db"); // db 모듈 추가
  * }
  */
 router.post(
-  "/sign",
+  "/login",
   function (req: Request, res: Response, next: NextFunction) {
     db.checkUserPassword(
       req.body.userId,
@@ -62,7 +62,7 @@ router.post(
 );
 
 /**
- * ~/user/sign
+ * ~/user/login
  *
  * "body": {
  *  "userId": "sdf",
