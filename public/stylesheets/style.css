@@ -43,13 +43,12 @@ header {
   position: sticky;
 }
 
-.notSelectedEffect:hover{
+.notSelectedEffect:hover {
   color: white;
 }
 .selectedEffect {
   color: white;
 }
-
 
 .content {
   background-color: rgb(238, 245, 255);
@@ -86,8 +85,9 @@ a {
   color: white;
   border-radius: 1em;
   border-style: solid;
-  padding: 3em;
+  padding: 1em;
   margin: 1em;
+  font-size: 0.9em;
 }
 
 .btnClass {
