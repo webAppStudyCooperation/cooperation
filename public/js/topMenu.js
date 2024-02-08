@@ -1,3 +1,4 @@
+import { baseURL } from "./config.js";
 import { User } from "./models/back/user.js";
 import { feedManager } from "./board.js";
 const login = document.getElementById("sign");
@@ -22,6 +23,8 @@ board === null || board === void 0 ? void 0 : board.addEventListener("click", ()
 chat === null || chat === void 0 ? void 0 : chat.addEventListener("click", () => {
     clearMainContentArea();
     onClickMenu(chat);
+    // 임시 테스트
+    window.location.href = baseURL + `socketTest`;
 });
 game === null || game === void 0 ? void 0 : game.addEventListener("click", () => {
     clearMainContentArea();

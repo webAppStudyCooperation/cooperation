@@ -32,6 +32,8 @@ board?.addEventListener("click", () => {
 chat?.addEventListener("click", () => {
     clearMainContentArea()
     onClickMenu(chat)
+    // 임시 테스트
+    window.location.href = baseURL + `socketTest`;
 });
 game?.addEventListener("click", () => {
     clearMainContentArea()
