@@ -1,6 +1,7 @@
 import { baseURL } from "./config.js";
 import { User } from "./models/back/user.js";
 import { feedManager } from "./board.js";
+import { loginPageManager } from "./login.js";
 const login = document.getElementById("sign");
 const board = document.getElementById("board");
 const chat = document.getElementById("chat");
@@ -14,6 +15,7 @@ let user = testUser;
 login === null || login === void 0 ? void 0 : login.addEventListener("click", () => {
     clearMainContentArea();
     onClickMenu(login);
+    loginPageManager.showLoginPage();
 });
 board === null || board === void 0 ? void 0 : board.addEventListener("click", () => {
     clearMainContentArea();

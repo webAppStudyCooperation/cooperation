@@ -5,6 +5,7 @@ import { User } from "./models/back/user.js";
 import { DateString } from "./models/back/boards.js";
 import { copyFileSync } from "fs";
 import { feedManager } from "./board.js";
+import { loginPageManager } from "./login.js";
 
 const login: HTMLElement | null = document.getElementById("sign");
 const board: HTMLElement | null = document.getElementById("board");
@@ -21,13 +22,14 @@ let user = testUser;
 
 // setFeedAtContent
 login?.addEventListener("click", () => {
-    clearMainContentArea()
-    onClickMenu(login)
+  clearMainContentArea();
+  onClickMenu(login);
+  loginPageManager.showLoginPage();
 });
 board?.addEventListener("click", () => {
-    clearMainContentArea()
-    feedManager.setFeedAtContent()
-    onClickMenu(board)
+  clearMainContentArea();
+  feedManager.setFeedAtContent();
+  onClickMenu(board);
 });
 chat?.addEventListener("click", () => {
     clearMainContentArea()
@@ -36,38 +38,32 @@ chat?.addEventListener("click", () => {
     window.location.href = baseURL + `socketTest`;
 });
 game?.addEventListener("click", () => {
-    clearMainContentArea()
-    onClickMenu(game)
+  clearMainContentArea();
+  onClickMenu(game);
 });
 
-function onClickMenu(
-    clicked: HTMLElement | null
-){
-    setColorDefault(login)
-    setColorDefault(board)
-    setColorDefault(chat)
-    setColorDefault(game)
-    setColorSelected(clicked)
+function onClickMenu(clicked: HTMLElement | null) {
+  setColorDefault(login);
+  setColorDefault(board);
+  setColorDefault(chat);
+  setColorDefault(game);
+  setColorSelected(clicked);
 }
 
 /**기본색으로 변환 */
-function setColorDefault(
-    elem: HTMLElement | null
-){
-    if(elem == null) return;
-    elem.className = "notSelectedEffect"
+function setColorDefault(elem: HTMLElement | null) {
+  if (elem == null) return;
+  elem.className = "notSelectedEffect";
 }
 
-function setColorSelected(
-    elem: HTMLElement | null
-) {
-    if(elem == null) return;
-    elem.className = "selectedEffect"
+function setColorSelected(elem: HTMLElement | null) {
+  if (elem == null) return;
+  elem.className = "selectedEffect";
 }
 
 /***임시 */
 function clearMainContentArea() {
-    mainContentElem?.childNodes.forEach((child:Node) => {
-        mainContentElem?.removeChild(child)
-    })
+  mainContentElem?.childNodes.forEach((child: Node) => {
+    mainContentElem?.removeChild(child);
+  });
 }
