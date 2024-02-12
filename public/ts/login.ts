@@ -31,7 +31,7 @@ class LoginPageManager {
   }
 
   showLoginPage() {
-    this.appendToMainContent(this.loginForm.returnloginFormUI());
+    this.appendToMainContent(this.loginForm.form());
   }
 
   /**
@@ -40,12 +40,14 @@ class LoginPageManager {
    */
   private btnsEventListener() {
     this.loginBtnEventListener();
+    this.signBtnEventListener();
+    this.reSignBtnEventListener();
   }
 
   private loginBtnEventListener() {
     this.loginForm
       .returnReSignBtn()
-      .addEventListener("click", (e) => this.showReSingPage(e));
+      .addEventListener("click", (e) => this.showReSignPage(e));
 
     this.loginForm
       .returnSignUpBtn()
@@ -53,18 +55,34 @@ class LoginPageManager {
   }
 
   private showSignUpPage(e: Event) {
-    e.preventDefault();
-    this.clear();
-    this.appendToMainContent(this.signUpForm.returnSignUpFormUI());
+    this.eraseForm(e);
+    this.appendToMainContent(this.signUpForm.form());
   }
 
-  private showReSingPage(e: Event) {
-    this.clear();
+  private signBtnEventListener() {
+    this.signUpForm.returnSignUpBtn().addEventListener("click", (e) => {
+      this.eraseForm(e);
+    });
   }
 
+  private showReSignPage(e: Event) {
+    this.eraseForm(e);
+    this.appendToMainContent(this.reSignForm.form());
+  }
+
+  private reSignBtnEventListener() {
+    this.reSignForm.returnReSignBtn().addEventListener("click", (e) => {
+      this.eraseForm(e);
+    });
+  }
   private appendToMainContent(thisForm: HTMLElement | HTMLFormElement) {
     console.log(thisForm);
     this.content?.appendChild(thisForm);
+  }
+
+  private eraseForm(e: Event) {
+    e.preventDefault();
+    this.clear();
   }
 
   private clear() {

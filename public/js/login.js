@@ -21,7 +21,7 @@ class LoginPageManager {
         this.btnsEventListener();
     }
     showLoginPage() {
-        this.appendToMainContent(this.loginForm.returnloginFormUI());
+        this.appendToMainContent(this.loginForm.form());
     }
     /**
      * 모든 Form의 btn listener,
@@ -29,27 +29,43 @@ class LoginPageManager {
      */
     btnsEventListener() {
         this.loginBtnEventListener();
+        this.signBtnEventListener();
+        this.reSignBtnEventListener();
     }
     loginBtnEventListener() {
         this.loginForm
             .returnReSignBtn()
-            .addEventListener("click", (e) => this.showReSingPage(e));
+            .addEventListener("click", (e) => this.showReSignPage(e));
         this.loginForm
             .returnSignUpBtn()
             .addEventListener("click", (e) => this.showSignUpPage(e));
     }
     showSignUpPage(e) {
-        e.preventDefault();
-        this.clear();
-        this.appendToMainContent(this.signUpForm.returnSignUpFormUI());
+        this.eraseForm(e);
+        this.appendToMainContent(this.signUpForm.form());
     }
-    showReSingPage(e) {
-        this.clear();
+    signBtnEventListener() {
+        this.signUpForm.returnSignUpBtn().addEventListener("click", (e) => {
+            this.eraseForm(e);
+        });
+    }
+    showReSignPage(e) {
+        this.eraseForm(e);
+        this.appendToMainContent(this.reSignForm.form());
+    }
+    reSignBtnEventListener() {
+        this.reSignForm.returnReSignBtn().addEventListener("click", (e) => {
+            this.eraseForm(e);
+        });
     }
     appendToMainContent(thisForm) {
         var _a;
         console.log(thisForm);
         (_a = this.content) === null || _a === void 0 ? void 0 : _a.appendChild(thisForm);
+    }
+    eraseForm(e) {
+        e.preventDefault();
+        this.clear();
     }
     clear() {
         var _a;

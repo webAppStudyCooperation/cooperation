@@ -15,3 +15,9 @@ export function makeJoinUserJsonStr(userId, userPassword, name, nickname) {
         familyId: 0,
     });
 }
+export function makeReSignUserJsonStr(userId, userPassword) {
+    return JSON.stringify({
+        userId: userId,
+        userPassword: userPassword,
+    });
+}

@@ -63,7 +63,7 @@ export class LoginForm extends InputsForm {
             return response;
         });
     }
-    returnloginFormUI() {
+    form() {
         return this.loginFormUI;
     }
     returnSignUpBtn() {

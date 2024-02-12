@@ -5,12 +5,12 @@ import { InputsForm } from "./InputsForm.js";
 
 /** 로그인 폼 -> 로그인 페이지 때 보여줄 폼  */
 export class LoginForm extends InputsForm {
-  private loginFormUI = document.createElement("form");
-  private loginBtn = document.createElement("button");
-  private inputNBtnDiv = document.createElement("div");
-  private signBtns = document.createElement("div");
-  private signUpBtn = document.createElement("button");
-  private reSignBtn = document.createElement("button");
+  private loginFormUI: HTMLFormElement = document.createElement("form");
+  private loginBtn: HTMLButtonElement = document.createElement("button");
+  private inputNBtnDiv: HTMLDivElement = document.createElement("div");
+  private signBtns: HTMLDivElement = document.createElement("div");
+  private signUpBtn: HTMLButtonElement = document.createElement("button");
+  private reSignBtn: HTMLButtonElement = document.createElement("button");
 
   constructor() {
     super();
@@ -76,7 +76,7 @@ export class LoginForm extends InputsForm {
     });
   }
 
-  returnloginFormUI() {
+  form() {
     return this.loginFormUI;
   }
 

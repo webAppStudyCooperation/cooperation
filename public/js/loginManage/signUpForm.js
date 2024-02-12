@@ -27,7 +27,7 @@ export class SignUpForm extends InputsForm {
     eventListener(e) {
         e.preventDefault();
         const promise = this.post(this.returnUserId(), this.returnUserPassword(), this.name.value, this.nickname.value);
-        if (promise == null) {
+        if (promise === null) {
             alert("유효하지 않은 형식 ㅠㅠ");
         }
         else {
@@ -58,21 +58,22 @@ export class SignUpForm extends InputsForm {
         });
     }
     checkInput(userId, userPassword, name, nickname) {
-        let valild = true;
         // 공통 체크
         const list = [userId, userPassword, name, nickname];
-        list.forEach((str) => {
-            if (str == null || str == "" || str.length < 3) {
-                valild = false;
-            }
-        });
+        // 하나라도 만족한다면 false 반환
+        if (list.some((str) => str == null || str == "" || str.length < 3)) {
+            return false;
+        }
         // password 추가 체크
         if (userPassword.includes("@")) {
-            valild = false;
+            return false;
         }
-        return valild;
+        return true;
     }
-    returnSignUpFormUI() {
+    form() {
         return this.signUpFromUI;
+    }
+    returnSignUpBtn() {
+        return this.signUpBtn;
     }
 }
