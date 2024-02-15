@@ -39,16 +39,18 @@ export class DateString {
     }
 
     getDateString(): string | null { 
-        if(this.date == null) {
-            return null
-        } else {
-            return this.date.getFullYear() + ":"
-             + this.date.getMonth + ":"
-             + this.date.getDate + " "
-             + this.date.getHours() + ":"
-             + this.date.getMinutes() + ":"
-             + this.date.getSeconds()
-        }
+        // todo 날짜 파싱 로직 다시 만들기
+        return "2000-01-23 00:00:00"
+        // if(this.date == null) {
+        //     return null
+        // } else {
+        //     return this.date.getFullYear() + "-"
+        //      + this.date.getMonth + "-"
+        //      + this.date.getDate + " "
+        //      + this.date.getHours() + ":"
+        //      + this.date.getMinutes() + ":"
+        //      + this.date.getSeconds()
+        // }
     }
 }
 
@@ -62,6 +64,7 @@ export class BoardItem {
     secret: SecretNumber
     createUser: User | null
     comments: BoardComment[]
+    familyId: number
 
     constructor(
         boardId: number,
@@ -72,6 +75,7 @@ export class BoardItem {
         password: string | null,
         secret: number,
         createUser: User,
+        familyId: number
     ) {
         this.boardId = boardId
         this.title = title
@@ -82,5 +86,6 @@ export class BoardItem {
         this.secret = new SecretNumber(secret)
         this.createUser = createUser
         this.comments = []
+        this.familyId = familyId
     }
 }

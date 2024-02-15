@@ -9,23 +9,23 @@
     <link href="/stylesheets/style.css" rel="stylesheet" />
   </head>
   <body>
-    <header class="header">header</header>
+    <header>header</header>
+    <div class="menuBar">
+      <p id="sign" class="notSelectedEffect">로그인</p>
+      <p id="board" class="notSelectedEffect">게시판</p>
+      <p id="chat" class="notSelectedEffect">채팅</p>
+      <p id="game" class="notSelectedEffect">게임</p>
+    </div>
+
     <div class="content">
       <div id="mainContent">content</div>
-      <div class="menuBar">
-        menuBar
-        <p id="login">로그인</p>
-        <p id="board">게시판</p>
-        <p id="chat">채팅</p>
-        <p id="game">오목</p>
-      </div>
     </div>
     <footer>footer</footer>
   </body>
   <script>
     const exports = {};
   </script>
-  <script type="module" src="/js/board.js">
-  </script>
-  
+  <script type="module" src="/js/sign.js"></script>
+  <script type="module" src="/js/topMenu.js"></script>
+  <script type="module" src="/js/board.js"></script>
 </html>

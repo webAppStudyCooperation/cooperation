@@ -5,6 +5,7 @@
   font-weight: normal;
   font-style: normal;
 }
+
 @font-face {
   font-family: "seolleimcool-SemiBold";
   src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2312-1@1.1/seolleimcool-SemiBold.woff2")
@@ -12,14 +13,14 @@
   font-weight: normal;
   font-style: normal;
 }
+
 body {
   font-family: "seolleimcool-SemiBold";
-  font-size: 110%;
+  font-size: 20px;
   background-color: #b4d4ff;
 }
 
-.font,
-.sigleComment {
+.font {
   font-family: "seolleimcool-SemiBold";
 }
 
@@ -33,21 +34,20 @@ header {
   height: 10%;
   width: 100%;
   padding: 1rem;
-
+  margin: 2rem;
   display: flex;
   flex-direction: row;
   justify-content: space-evenly;
   top: 0;
-  backdrop-filter: blur(5px);
-  background-color: rgba(134, 182, 246, 0.7);
-  position: sticky;
-}
 
-.notSelectedEffect:hover {
-  color: white;
-}
-.selectedEffect {
-  color: white;
+  backdrop-filter: blur(5px);
+
+  background-color: rgb(134 182 246 / 0.7);
+
+  position: sticky;
+  p:hover {
+    color: red;
+  }
 }
 
 .content {
@@ -55,14 +55,13 @@ header {
   display: flex;
   text-align: center;
   flex-direction: column;
-  width: 95%;
-  margin: 0 auto;
-}
-.content #mainContent {
-  background-color: rgb(134, 182, 246);
-  padding: 2rem;
-  margin: 2rem;
-  flex: 2 1 0;
+
+  #mainContent {
+    background-color: rgb(134, 182, 246);
+    padding: 2rem;
+    margin: 2rem;
+    flex: 2 1 0;
+  }
 }
 
 footer {
@@ -74,20 +73,21 @@ a {
   color: #00b7ff;
 }
 
-.sigleComment #commentUser {
-  color: red;
+.sigleComment {
+  @extend .font;
+  #commentUser {
+    color: red;
+  }
 }
 
-.singleFeed,
-.sigleComment {
+.singleFeed {
   flex: 1 1 0;
   flex-wrap: wrap;
   color: white;
   border-radius: 1em;
   border-style: solid;
-  padding: 1em;
+  padding: 3em;
   margin: 1em;
-  font-size: 0.9em;
 }
 
 .btnClass {
@@ -98,13 +98,18 @@ a {
   color: rgb(31, 37, 68);
 }
 
+.sigleComment {
+  @extend .singleFeed;
+}
+
+// inputTag class
+
+.borderClass {
+}
+
 .inputDiv {
   display: flex;
   flex-direction: column;
-  background-color: dodgerblue;
-  border-radius: 10rem;
-  padding-left: 5%;
-  padding-right: 5%;
 }
 
 .inputTitle {
@@ -112,7 +117,6 @@ a {
   border-radius: 1em;
   border-style: none;
   word-break: normal;
-  margin: 0.5em;
 }
 
 .inputContent {
@@ -120,7 +124,6 @@ a {
   border-radius: 1em;
   border-style: none;
   word-break: normal;
-  margin: 0.5em;
 }
 
 .btnClass,
@@ -138,12 +141,7 @@ a {
   border-style: none;
   word-wrap: break-word;
   word-break: break-all;
-  width: 40%;
+  width: 20px;
+
   word-break: normal;
 }
-
-.clickedBtn {
-  background-color: aquamarine;
-  color: gray;
-}
-/*# sourceMappingURL=style.css.map */

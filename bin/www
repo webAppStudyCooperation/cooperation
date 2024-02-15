@@ -20,6 +20,8 @@ app.set('port', port);
  */
 
 var server = http.createServer(app);
+var io = require('socket.io')(server); // socket 객체 : io
+
 
 /**
  * Listen on provided port, on all network interfaces.
@@ -88,3 +90,42 @@ function onListening() {
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
 }
+
+
+// connection을 수립하고, callback 인자로 socket을 받음
+io.on('connection', function (socket) {
+  // 연결이 성공했을 경우 실행됨
+  let name  = "unknown"
+  let roomNum = 0
+
+  socket.on('disconnect', function () {
+    // 클라이언트의 연결이 끊어졌을 경우 실행됨
+    io.to(roomNum).emit('chat', `${name}님이 퇴장 하셨습니다.` ); 
+  });
+
+  /**
+   * {
+   *  "roomNum": 0,
+   *  "name": "name"
+   * }
+   */
+  socket.on('joinRoom', (body) => {
+    name = body.name
+    roomNum = body.roomNum
+    socket.join(`${body.roomNum}`)
+    io.to(`${roomNum}`).emit('chat', `${name}님이 입장 하셨습니다.` ); 
+  })
+
+  /**
+   * {
+   *  "roomNum": 0,
+   *  "userId": "testId"
+   *  "msg": "ㄴㅇㅇㄴㄹㅇㄴㄹ"
+   * }
+   */
+  socket.on('chat', (body) => {
+    console.log('수신한 메시지:', body.msg);
+    // 클라이언트들에게 메시지 전송
+    io.to(`${roomNum}`).emit('chat', `${name}: ${body.msg}` ); 
+  });
+});
