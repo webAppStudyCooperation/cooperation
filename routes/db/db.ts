@@ -6,7 +6,7 @@ import { BoardComment } from "../models/comments";
 import { User } from "../models/user";
 import { Family } from "../models/family";
 
-const connection = mysql.createConnection({
+const pool = mysql.createPool({
   host: "localhost",
   user: "test",
   password: "1234",
@@ -14,8 +14,19 @@ const connection = mysql.createConnection({
   database: "cooperation",
 });
 
+function query(
+  q: String,
+  callback: (err: any, rows: any, fields: any) => void
+){
+  pool.getConnection((err: any, connection: any) => {
+    connection.query(q,callback)
+    connection.release();
+  })
+
+}
+
 function getAllBoard(familyId: number, callback: (row: BoardItem[]) => {}) {
-  connection.query(
+  query(
     `SELECT * FROM board left join user on board.createUserId = user.userId WHERE board.familyID = ${familyId}`,
     (err: any, rows: any, fields: any) => {
       if (err) {
@@ -53,7 +64,7 @@ function getCommentsByBoardId(
   boardId: number,
   callback: (row: BoardComment[]) => {}
 ) {
-  connection.query(
+  query(
     `SELECT * FROM comment left join user on comment.userId = user.userId where boardId = ${boardId}`,
     (err: any, rows: any, fields: any) => {
       let result: BoardComment[] = [];
@@ -88,7 +99,7 @@ function updateBoardItem(
 ) {
   let s = new SecretNumber(secret);
   let modifyDate = new DateString(null, new Date());
-  connection.query(
+  query(
     `UPDATE board SET title = '${title}', content = '${content}', secret = '${s.getSecret()}', password = '${password}', modifyDate = '${modifyDate.getDateString()}' WHERE boardId = ${boardId}`,
     (err: any, rows: any, fields: any) => {
       if (err) {
@@ -118,7 +129,7 @@ function insertBoardItem(
       boardItem.familyId
     });`;
     console.log(q);
-    connection.query(q, (err: any, rows: any, fields: any) => {
+    query(q, (err: any, rows: any, fields: any) => {
       if (err) {
         callback(false);
         return;
@@ -129,7 +140,7 @@ function insertBoardItem(
 }
 
 function deleteBoardItem(boardId: number, callback: (success: boolean) => {}) {
-  connection.query(
+  query(
     `delete from board where boardId = ${boardId}`,
     (err: any, rows: any, fields: any) => {
       if (err) {
@@ -145,8 +156,8 @@ function insertComment(
   boardComment: BoardComment,
   callback: (success: boolean) => {}
 ) {
-  let query = `INSERT INTO cooperation.comment (content, userId, boardId) VALUES ("${boardComment.content}", "${boardComment.user.id}", ${boardComment.boardId});`;
-  connection.query(query, (err: any, rows: any, fields: any) => {
+  let q = `INSERT INTO cooperation.comment (content, userId, boardId) VALUES ("${boardComment.content}", "${boardComment.user.id}", ${boardComment.boardId});`;
+  query(q, (err: any, rows: any, fields: any) => {
     if (err) {
       log(err);
       callback(false);
@@ -157,7 +168,7 @@ function insertComment(
 }
 
 function deleteComment(commentId: number, callback: (success: boolean) => {}) {
-  connection.query(
+  query(
     `delete from comment where idcomment = ${commentId}`,
     (err: any, rows: any, fields: any) => {
       if (err) {
@@ -174,8 +185,8 @@ function insertFamily(
   familyName: string,
   callback: (success: boolean) => {}
 ) {
-  let query = `INSERT INTO cooperation.family (familyId, familyName) VALUES (${familyId}, "${familyName}");`;
-  connection.query(query, (err: any, rows: any, fields: any) => {
+  let q = `INSERT INTO cooperation.family (familyId, familyName) VALUES (${familyId}, "${familyName}");`;
+  query(q, (err: any, rows: any, fields: any) => {
     if (err) {
       callback(false);
       return;
@@ -186,7 +197,7 @@ function insertFamily(
 
 function getFamily(familyId: number, callback: (family: Family) => {}) {
   let q = `Select * From cooperation.family Where familyId = ${familyId}`;
-  connection.query(q, (err: any, rows: any, fields: any) => {
+  query(q, (err: any, rows: any, fields: any) => {
     if (err) {
       callback(new Family(-1, "no family"));
       return;
@@ -197,7 +208,7 @@ function getFamily(familyId: number, callback: (family: Family) => {}) {
 
 function checkUserPassword(userId: String, userPassword: String, callback: (jsonString: String, success: Boolean) => {}) {
   let q = `Select * From cooperation.user where userId = "${userId}"`
-  connection.query(q, (err: any, rows: any, fields: any) => {
+  query(q, (err: any, rows: any, fields: any) => {
     if(rows[0] == null || rows[0] == undefined) {
       callback(JSON.stringify("{'message': 일치하는 아이디 없음}"), false);
     } else if(rows[0]["userPassword"] != userPassword){
@@ -211,10 +222,10 @@ function checkUserPassword(userId: String, userPassword: String, callback: (json
 function insertUser(userId: String, userPassword: String, name: String, nickname: String, familyId: number, callback: (jsonString: String, success: Boolean) => {}) {
   let checkQuery = `Select * From cooperation.user where userId = "${userId}"`
   let insertQuery = `INSERT INTO cooperation.user (userId, userPassword, name, nickname, familyId) VALUES ("${userId}", "${userPassword}", "${name}", "${nickname}", ${familyId});`;
-  connection.query(checkQuery, (err: any, rows: any, fields: any) => {
+  query(checkQuery, (err: any, rows: any, fields: any) => {
     if(rows[0] == null || rows[0] == undefined) {
       // 기존 아이디 없으므로 가입 진행
-      connection.query(insertQuery, (err: any, rows: any, fields: any) => {
+      query(insertQuery, (err: any, rows: any, fields: any) => {
         if(err) {
           callback(JSON.stringify("{'message': 가입 실패}"),false)
           return;
@@ -229,7 +240,7 @@ function insertUser(userId: String, userPassword: String, name: String, nickname
 
 function deleteUser(userId: String, callback: (jsonString: String, success: Boolean) => {}) {
   let q = `Delete From cooperation.user where userId = "${userId}"`
-  connection.query(q, (err: any, rows: any, fields: any) => {
+  query(q, (err: any, rows: any, fields: any) => {
     if(err) {
       callback(JSON.stringify("{'message': 삭제 실패}"), false);
     } else {
@@ -237,6 +248,17 @@ function deleteUser(userId: String, callback: (jsonString: String, success: Bool
     }
   });
 }
+
+function intervalCheck() {
+  const q = "select count(*) as 'count' from board"
+  query(q, (err:any, rows:any, fields:any) => {
+    let count = 0
+    if(rows[0] != undefined && rows[0] != null) count = rows[0]['count'];
+    console.log(`board count = ${count}`);
+  })
+}
+
+setInterval(intervalCheck, 1000*60*60*6);
 
 module.exports = {
   getAllBoard,
