@@ -3,6 +3,7 @@ import { json } from "stream/consumers";
 import { LoginForm } from "./loginManage/loginForm.js";
 import { SignUpForm } from "./loginManage/signUpForm.js";
 import { ReSignForm } from "./loginManage/reSignFrom.js";
+import e from "express";
 
 /**
  * 로그인  - login
@@ -15,6 +16,10 @@ import { ReSignForm } from "./loginManage/reSignFrom.js";
  * form 이동 관리
  * 각각의 loginForm, signUpForm, reSignForm에 있음
  * UI 관리
+ *
+ * 화면 그리기, 지우기 담당
+ *
+ * draw~():
  */
 class LoginPageManager {
   private loginForm: LoginForm;
@@ -30,8 +35,18 @@ class LoginPageManager {
     this.btnsEventListener();
   }
 
-  showLoginPage() {
+  drawLoginPage() {
     this.appendToMainContent(this.loginForm.form());
+  }
+
+  private drawSignUpPage(e: Event) {
+    this.eraseForm(e);
+    this.appendToMainContent(this.signUpForm.form());
+  }
+
+  private drawReSignPage(e: Event) {
+    this.eraseForm(e);
+    this.appendToMainContent(this.reSignForm.form());
   }
 
   /**
@@ -47,34 +62,43 @@ class LoginPageManager {
   private loginBtnEventListener() {
     this.loginForm
       .returnReSignBtn()
-      .addEventListener("click", (e) => this.showReSignPage(e));
+      .addEventListener("click", (e) => this.drawReSignPage(e));
 
     this.loginForm
       .returnSignUpBtn()
-      .addEventListener("click", (e) => this.showSignUpPage(e));
-  }
-
-  private showSignUpPage(e: Event) {
-    this.eraseForm(e);
-    this.appendToMainContent(this.signUpForm.form());
+      .addEventListener("click", (e) => this.drawSignUpPage(e));
   }
 
   private signBtnEventListener() {
     this.signUpForm.returnSignUpBtn().addEventListener("click", (e) => {
-      this.eraseForm(e);
+      // await
+      // console.log(this.signUpForm.checkClear());
+      // this.eraseForm(e);
     });
-  }
 
-  private showReSignPage(e: Event) {
-    this.eraseForm(e);
-    this.appendToMainContent(this.reSignForm.form());
+    // signUp, resign 클래스 내의backBtn e.preventDefault() 처리 안 되어있음
+    // backBtn 기능 manager에서 관리
+    // 기존 Form 지우고 새로운 그림 그리기 역할 수행
+    this.signUpForm.returnBackBtn().addEventListener("click", (e) => {
+      this.backToLoginForm(e);
+    });
   }
 
   private reSignBtnEventListener() {
     this.reSignForm.returnReSignBtn().addEventListener("click", (e) => {
-      this.eraseForm(e);
+      // this.eraseForm(e);
+    });
+
+    this.reSignForm.returnBackBtn().addEventListener("click", (e) => {
+      this.backToLoginForm(e);
     });
   }
+
+  private backToLoginForm(e: Event) {
+    this.eraseForm(e);
+    this.drawLoginPage();
+  }
+
   private appendToMainContent(thisForm: HTMLElement | HTMLFormElement) {
     console.log(thisForm);
     this.content?.appendChild(thisForm);
@@ -82,6 +106,7 @@ class LoginPageManager {
 
   private eraseForm(e: Event) {
     e.preventDefault();
+
     this.clear();
   }
 

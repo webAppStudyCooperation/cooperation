@@ -22,6 +22,17 @@ function inputsForm() {
   return inputsDiv;
 }
 
+// 임시화면
+function goodByeDiv() {
+  const div: HTMLDivElement = document.createElement("div");
+  const h1: HTMLDivElement = document.createElement("h1");
+
+  h1.innerText = "Goodbye!";
+  div.appendChild(h1);
+
+  return div;
+}
+
 export class ReSignForm {
   private reSignBtn: HTMLButtonElement = document.createElement("button");
   private reSignForm: HTMLFormElement = document.createElement("form");
@@ -29,26 +40,38 @@ export class ReSignForm {
 
   private userIdInput: HTMLInputElement;
   private userPasswordInput: HTMLInputElement;
+  private backBtn: HTMLButtonElement = document.createElement("button");
+
+  // 탈퇴 후 임시화면
+  private goodByeDiv: HTMLDivElement = document.createElement("div");
 
   constructor() {
     this.inputsDiv = inputsForm();
     this.reSignForm.append(this.inputsDiv);
+    this.reSignForm.appendChild(this.backBtn);
     this.reSignForm.appendChild(this.reSignBtn);
+
+    // 탈퇴 후 임시화면
+    this.goodByeDiv = goodByeDiv();
 
     this.userIdInput = this.inputsDiv.children[0] as HTMLInputElement;
     this.userPasswordInput = this.inputsDiv.children[1] as HTMLInputElement;
+    // Value값 읽기 위해 타입캐스팅
 
     this.reSignBtn.innerText = "회원탈퇴";
+    this.backBtn.innerText = "뒤로가기";
 
     this.reSignBtn.addEventListener("click", (e) => {
       this.eventListener(e);
     });
+
+    // this.backBtn.addEventListener("click", (e) => {
+    //   e.preventDefault();
+    // });
   }
 
   private eventListener(e: Event) {
     e.preventDefault();
-
-    // Value값 읽기 위해 타입캐스팅
 
     const promise = this.delete(
       this.userIdInput.value,
@@ -61,6 +84,7 @@ export class ReSignForm {
           res.json().then((json) => {
             if (res.status === 200) {
               alert("회원 탈퇴가 성공적으로 이뤄졌습니다.");
+              this.drawGoodbyeScreen();
             } else if (res.status === 400) {
               alert(json);
             }
@@ -94,11 +118,20 @@ export class ReSignForm {
     });
   }
 
+  private drawGoodbyeScreen() {
+    this.reSignForm.replaceChildren();
+    this.reSignForm.appendChild(this.goodByeDiv);
+  }
+
   form() {
     return this.reSignForm;
   }
 
   returnReSignBtn() {
     return this.reSignBtn;
+  }
+
+  returnBackBtn() {
+    return this.backBtn;
   }
 }

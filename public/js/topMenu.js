@@ -15,7 +15,7 @@ let user = testUser;
 login === null || login === void 0 ? void 0 : login.addEventListener("click", () => {
     clearMainContentArea();
     onClickMenu(login);
-    loginPageManager.showLoginPage();
+    loginPageManager.drawLoginPage();
 });
 board === null || board === void 0 ? void 0 : board.addEventListener("click", () => {
     clearMainContentArea();

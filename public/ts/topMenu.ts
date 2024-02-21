@@ -24,7 +24,7 @@ let user = testUser;
 login?.addEventListener("click", () => {
   clearMainContentArea();
   onClickMenu(login);
-  loginPageManager.showLoginPage();
+  loginPageManager.drawLoginPage();
 });
 board?.addEventListener("click", () => {
   clearMainContentArea();
