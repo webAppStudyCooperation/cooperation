@@ -4,6 +4,8 @@ import { LoginForm } from "./loginManage/loginForm.js";
 import { SignUpForm } from "./loginManage/signUpForm.js";
 import { ReSignForm } from "./loginManage/reSignFrom.js";
 import e from "express";
+import { feedManager } from "./board.js";
+import { baseURL } from "./config.js";
 
 /**
  * 로그인  - login
@@ -18,9 +20,46 @@ import e from "express";
  * UI 관리
  *
  * 화면 그리기, 지우기 담당
+ * 각 클래스에서 서로의 기능이 필요할 때 상호작용하게 해줌
  *
  * draw~():
  */
+
+// 가입 후 임시화면
+function welcomeDiv() {
+  const div: HTMLDivElement = document.createElement("div");
+  const h1: HTMLDivElement = document.createElement("h1");
+  const selectBar: HTMLDivElement = document.createElement("div");
+
+  //보류
+  const board: HTMLElement | null = document.getElementById(
+    "board"
+  ) as HTMLButtonElement;
+  const chat: HTMLElement | null = document.getElementById(
+    "chat"
+  ) as HTMLButtonElement;
+  const game: HTMLElement | null = document.getElementById(
+    "game"
+  ) as HTMLButtonElement;
+
+  board.addEventListener("click", () => {
+    feedManager.setFeedAtContent;
+  });
+  chat.addEventListener("click", () => {
+    window.location.href = baseURL + `socketTest`;
+  });
+
+  selectBar.appendChild(board);
+  selectBar.appendChild(chat);
+  selectBar.appendChild(game);
+
+  h1.innerText = "welcome!";
+  div.appendChild(h1);
+  div.appendChild(selectBar);
+
+  return div;
+}
+
 class LoginPageManager {
   private loginForm: LoginForm;
   private signUpForm: SignUpForm;
@@ -54,12 +93,13 @@ class LoginPageManager {
    * Form UI 전환을 위해
    */
   private btnsEventListener() {
-    this.loginBtnEventListener();
-    this.signBtnEventListener();
-    this.reSignBtnEventListener();
+    this.loginFormBtnEventListener();
+    this.signFormBtnEventListener();
+    this.reSignFormBtnEventListener();
   }
 
-  private loginBtnEventListener() {
+  /**로그인 화면에 있는 회원가입, 회원탈퇴 버튼 리스너 */
+  private loginFormBtnEventListener() {
     this.loginForm
       .returnReSignBtn()
       .addEventListener("click", (e) => this.drawReSignPage(e));
@@ -69,11 +109,12 @@ class LoginPageManager {
       .addEventListener("click", (e) => this.drawSignUpPage(e));
   }
 
-  private signBtnEventListener() {
+  private signFormBtnEventListener() {
+    // 회원가입버튼 누르고 나서 화면 그리기
     this.signUpForm.returnSignUpBtn().addEventListener("click", (e) => {
-      // await
-      // console.log(this.signUpForm.checkClear());
-      // this.eraseForm(e);
+      // 임시 welcome 화면
+      this.clear();
+      this.appendToMainContent(welcomeDiv());
     });
 
     // signUp, resign 클래스 내의backBtn e.preventDefault() 처리 안 되어있음
@@ -84,7 +125,7 @@ class LoginPageManager {
     });
   }
 
-  private reSignBtnEventListener() {
+  private reSignFormBtnEventListener() {
     this.reSignForm.returnReSignBtn().addEventListener("click", (e) => {
       // this.eraseForm(e);
     });
@@ -95,18 +136,19 @@ class LoginPageManager {
   }
 
   private backToLoginForm(e: Event) {
-    this.eraseForm(e);
+    // this.eraseForm(e);
+    // input 초기화 막음
+    this.clear();
     this.drawLoginPage();
   }
 
   private appendToMainContent(thisForm: HTMLElement | HTMLFormElement) {
-    console.log(thisForm);
     this.content?.appendChild(thisForm);
   }
 
+  /**content에 붙여진 div들 지우기 */
   private eraseForm(e: Event) {
     e.preventDefault();
-
     this.clear();
   }
 

@@ -24,7 +24,7 @@ export class ReSignForm {
     constructor() {
         this.reSignBtn = document.createElement("button");
         this.reSignForm = document.createElement("form");
-        this.backBtn = document.createElement("button");
+        this.backBtn = document.createElement("input");
         // 탈퇴 후 임시화면
         this.goodByeDiv = document.createElement("div");
         this.inputsDiv = inputsForm();
@@ -37,7 +37,8 @@ export class ReSignForm {
         this.userPasswordInput = this.inputsDiv.children[1];
         // Value값 읽기 위해 타입캐스팅
         this.reSignBtn.innerText = "회원탈퇴";
-        this.backBtn.innerText = "뒤로가기";
+        this.backBtn.value = "뒤로가기";
+        this.backBtn.type = "reset";
         this.reSignBtn.addEventListener("click", (e) => {
             this.eventListener(e);
         });

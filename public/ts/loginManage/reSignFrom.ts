@@ -40,7 +40,7 @@ export class ReSignForm {
 
   private userIdInput: HTMLInputElement;
   private userPasswordInput: HTMLInputElement;
-  private backBtn: HTMLButtonElement = document.createElement("button");
+  private backBtn: HTMLInputElement = document.createElement("input");
 
   // 탈퇴 후 임시화면
   private goodByeDiv: HTMLDivElement = document.createElement("div");
@@ -59,7 +59,8 @@ export class ReSignForm {
     // Value값 읽기 위해 타입캐스팅
 
     this.reSignBtn.innerText = "회원탈퇴";
-    this.backBtn.innerText = "뒤로가기";
+    this.backBtn.value = "뒤로가기";
+    this.backBtn.type = "reset";
 
     this.reSignBtn.addEventListener("click", (e) => {
       this.eventListener(e);

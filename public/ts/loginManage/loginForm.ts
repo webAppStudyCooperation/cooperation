@@ -38,8 +38,7 @@ export class LoginForm extends InputsForm {
   private eventListener() {
     let userId = this.returnUserId();
     let userPassword = this.returnUserPassword();
-    console.log(userId);
-    console.log(userPassword);
+
     this.post(userId, userPassword).then((response) => {
       if (response.status === 200) {
         response.json().then((json) => {
@@ -49,7 +48,9 @@ export class LoginForm extends InputsForm {
           console.log(typeof obj);
           console.log(obj);
 
-          this.clearInput();
+          this.clearInputValues();
+
+          // 쿠키
         });
       } else if (response.status === 400) {
         response.json().then((json) => {
@@ -57,11 +58,6 @@ export class LoginForm extends InputsForm {
         });
       }
     });
-  }
-
-  /** input 내용 초기화  */
-  private clearInput() {
-    this.loginFormUI.reset();
   }
 
   private post(userId: string, userPassword: string) {
@@ -77,6 +73,7 @@ export class LoginForm extends InputsForm {
   }
 
   form() {
+    this.clearInputValues();
     return this.loginFormUI;
   }
 
@@ -86,5 +83,10 @@ export class LoginForm extends InputsForm {
 
   returnReSignBtn() {
     return this.reSignBtn;
+  }
+
+  /** input 내용 초기화  */
+  private clearInputValues() {
+    this.loginFormUI.reset();
   }
 }
