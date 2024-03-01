@@ -1,7 +1,9 @@
 import { response } from "express";
+import { after } from "node:test";
 import { json } from "stream/consumers";
 import { baseURL } from "../config.js";
 import { InputsForm } from "./InputsForm.js";
+import { setCookie } from "../cookie.js";
 
 /** 로그인 폼 -> 로그인 페이지 때 보여줄 폼  */
 export class LoginForm extends InputsForm {
@@ -50,7 +52,9 @@ export class LoginForm extends InputsForm {
 
           this.clearInputValues();
 
-          // 쿠키
+          // 쿠키 생성
+          setCookie("userId", userId, { secure: true });
+          this.removeLogin();
         });
       } else if (response.status === 400) {
         response.json().then((json) => {
@@ -88,5 +92,33 @@ export class LoginForm extends InputsForm {
   /** input 내용 초기화  */
   private clearInputValues() {
     this.loginFormUI.reset();
+  }
+
+  /** 로그인 이후
+   * 로그인 navBar에서 제거
+   * 로그인 form 제거
+   */
+
+  private removeLogin() {
+    const content = document.getElementById("mainContent");
+    // const menuBar = document.getElementsByClassName("menuBar");
+    const login = document.getElementById("sign");
+
+    const menuBar = login?.parentElement;
+
+    const logout = document.createElement("p");
+    logout.innerText = "로그아웃";
+
+    if (document.cookie) {
+      if (login != null && login?.style.display !== "none") {
+        login.style.display = "none";
+      }
+
+      if (content?.childElementCount) {
+        content?.replaceChildren();
+      }
+
+      menuBar?.appendChild(logout);
+    }
   }
 }

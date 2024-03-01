@@ -40,6 +40,7 @@ chat?.addEventListener("click", () => {
 game?.addEventListener("click", () => {
   clearMainContentArea();
   onClickMenu(game);
+  window.location.href = "https://famous-squirrel-43f0b7.netlify.app/";
 });
 
 function onClickMenu(clicked: HTMLElement | null) {

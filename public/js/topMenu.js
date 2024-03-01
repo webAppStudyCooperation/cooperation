@@ -31,6 +31,7 @@ chat === null || chat === void 0 ? void 0 : chat.addEventListener("click", () =>
 game === null || game === void 0 ? void 0 : game.addEventListener("click", () => {
     clearMainContentArea();
     onClickMenu(game);
+    window.location.href = "https://famous-squirrel-43f0b7.netlify.app/";
 });
 function onClickMenu(clicked) {
     setColorDefault(login);

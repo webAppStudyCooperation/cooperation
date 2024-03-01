@@ -1,6 +1,6 @@
-import { LoginForm } from "./loginManage/loginForm.js";
-import { SignUpForm } from "./loginManage/signUpForm.js";
-import { ReSignForm } from "./loginManage/reSignFrom.js";
+import { LoginForm } from "./forms/loginForm.js";
+import { SignUpForm } from "./forms/signUpForm.js";
+import { ReSignForm } from "./forms/reSignFrom.js";
 import { feedManager } from "./board.js";
 import { baseURL } from "./config.js";
 /**
@@ -24,20 +24,24 @@ function welcomeDiv() {
     const div = document.createElement("div");
     const h1 = document.createElement("h1");
     const selectBar = document.createElement("div");
-    const board = document.getElementById("board");
-    const chat = document.getElementById("chat");
-    // const game: HTMLElement | null = document.getElementById(
-    //   "game"
-    // ) as HTMLButtonElement;
-    board.addEventListener("click", () => {
-        feedManager.setFeedAtContent;
+    const boardBtn = document.createElement("button");
+    const chatBtn = document.createElement("button");
+    const gameBtn = document.createElement("button");
+    boardBtn.addEventListener("click", () => {
+        feedManager.setFeedAtContent();
     });
-    chat.addEventListener("click", () => {
+    chatBtn.addEventListener("click", () => {
         window.location.href = baseURL + `socketTest`;
     });
-    selectBar.appendChild(board);
-    selectBar.appendChild(chat);
-    // selectBar.appendChild(game);
+    gameBtn.addEventListener("click", () => {
+        window.location.href = "https://famous-squirrel-43f0b7.netlify.app/";
+    });
+    boardBtn.innerText = "게시판";
+    chatBtn.innerText = "채팅";
+    gameBtn.innerText = "게임";
+    selectBar.appendChild(boardBtn);
+    selectBar.appendChild(chatBtn);
+    selectBar.appendChild(gameBtn);
     h1.innerText = "welcome!";
     div.appendChild(h1);
     div.appendChild(selectBar);
