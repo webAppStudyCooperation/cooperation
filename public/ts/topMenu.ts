@@ -1,73 +1,154 @@
 import { baseURL } from "./config.js";
-import { BoardItem } from "./models/back/boards.js";
-import { BoardComment } from "./models/back/comments.js";
 import { User } from "./models/back/user.js";
-import { DateString } from "./models/back/boards.js";
-import { copyFileSync } from "fs";
-import { feedManager } from "./board.js";
+import { FeedManager } from "./board.js";
+import { cookieManager } from "./cookie.js";
+import { LoginPageManager } from "./loginManager.js";
 
 const login: HTMLElement | null = document.getElementById("sign");
 const board: HTMLElement | null = document.getElementById("board");
 const chat: HTMLElement | null = document.getElementById("chat");
 const game: HTMLElement | null = document.getElementById("game");
+const logout: HTMLElement | null = document.getElementById("logout");
 
 const mainContentElem: HTMLElement | null =
   document.getElementById("mainContent");
 
+// /**임시 유저 정보 , 로그인 구현 후 삭제할 것 */
+// const sign = new User("test", "TESTNAME", "TESTNICKNAME", 0);
 /**임시 유저 정보 , 로그인 구현 후 삭제할 것 */
-const testUser = new User("test", "TESTNAME", "TESTNICKNAME", 0);
-/**임시 유저 정보 , 로그인 구현 후 삭제할 것 */
-let user = testUser;
+const undefinedUser = new User("", "익명user", "익명user", -1);
+let user = undefinedUser;
+export const feedManager: FeedManager = new FeedManager(user);
+export const loginPageManager = new LoginPageManager(
+  user,
+  () => {
+    // 로그아웃
+    forceLogout();
+  },
+  (_user: User) => {
+    // 로그인
+    loggedIn(_user);
+  }
+);
+window.onload = function () {
+  const tmpUser = cookieManager.getUserFromCookie();
+  console.log(tmpUser);
+
+  if (tmpUser === undefined) {
+    // 로그인 실패
+    forceLogout();
+  } else {
+    // 로그인 성공
+    loggedIn(tmpUser);
+  }
+};
+
+/**
+ *window.eventlistner('onclick', fucntion)
+ * widow.onload는 콜백함수
+ * window load 이후
+ * feedManager에 user을 넘겨야함
+ *
+ * 1.promise 로 만든다.
+ *
+ *
+ */
+// newPromise
 
 // setFeedAtContent
 login?.addEventListener("click", () => {
-    clearMainContentArea()
-    onClickMenu(login)
+  clearMainContentArea();
+  onClickMenu(login);
+  loginPageManager.showLogInPage();
 });
 board?.addEventListener("click", () => {
-    clearMainContentArea()
-    feedManager.setFeedAtContent()
-    onClickMenu(board)
+  clearMainContentArea();
+  feedManager.setFeedAtContent();
+  onClickMenu(board);
 });
 chat?.addEventListener("click", () => {
-    clearMainContentArea()
-    onClickMenu(chat)
-    // 임시 테스트
-    window.location.href = baseURL + `socketTest`;
+  clearMainContentArea();
+  onClickMenu(chat);
+  // 임시 테스트
+  window.location.href = baseURL + `socketTest`;
 });
 game?.addEventListener("click", () => {
-    clearMainContentArea()
-    onClickMenu(game)
+  clearMainContentArea();
+  onClickMenu(game);
+  window.location.href = "https://famous-squirrel-43f0b7.netlify.app/";
+});
+logout?.addEventListener("click", () => {
+  clearMainContentArea();
+  onClickMenu(logout);
+  forceLogout();
 });
 
-function onClickMenu(
-    clicked: HTMLElement | null
-){
-    setColorDefault(login)
-    setColorDefault(board)
-    setColorDefault(chat)
-    setColorDefault(game)
-    setColorSelected(clicked)
+function onClickMenu(clicked: HTMLElement | null) {
+  setColorDefault(login);
+  setColorDefault(board);
+  setColorDefault(chat);
+  setColorDefault(game);
+  setColorDefault(logout);
+  setColorSelected(clicked);
 }
 
 /**기본색으로 변환 */
-function setColorDefault(
-    elem: HTMLElement | null
-){
-    if(elem == null) return;
-    elem.className = "notSelectedEffect"
+function setColorDefault(elem: HTMLElement | null) {
+  if (elem == null) return;
+  elem.className = "notSelectedEffect";
 }
 
-function setColorSelected(
-    elem: HTMLElement | null
-) {
-    if(elem == null) return;
-    elem.className = "selectedEffect"
+function setColorSelected(elem: HTMLElement | null) {
+  if (elem == null) return;
+  elem.className = "selectedEffect";
 }
 
 /***임시 */
 function clearMainContentArea() {
-    mainContentElem?.childNodes.forEach((child:Node) => {
-        mainContentElem?.removeChild(child)
-    })
+  mainContentElem?.childNodes.forEach((child: Node) => {
+    mainContentElem?.removeChild(child);
+  });
+}
+
+// /** 로그인 이후
+//  * 로그인 navBar에서 제거
+//  * 로그인 form 제거
+//  */
+function forceLogout() {
+  console.log("forceLogout");
+  feedManager.setUser(undefinedUser);
+  loginPageManager.setUser(undefinedUser);
+  cookieManager.makeUserIdExpried();
+  user = undefinedUser;
+  makeLogOutToLogin();
+}
+function loggedIn(_user: User) {
+  user = _user;
+  feedManager.setUser(_user);
+  loginPageManager.setUser(user);
+  makeLoginToLogout();
+}
+function makeLoginToLogout() {
+  const content = document.getElementById("mainContent");
+  const login = document.getElementById("sign");
+  const logout = document.getElementById("logout");
+
+  if (logout != null) logout.style.display = "block";
+
+  if (login != null) login.style.display = "none";
+
+  if (content?.childElementCount) {
+    content?.replaceChildren();
+  }
+}
+
+function makeLogOutToLogin() {
+  // topBar에 다시 로그인 버튼 만들기
+  // topBar에서 로그아웃 버튼 떼기
+
+  const login = document.getElementById("sign");
+  const logout = document.getElementById("logout");
+
+  if (logout != null) logout.style.display = "none";
+  if (login != null) login.style.display = "block";
 }

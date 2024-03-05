@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import { User } from "./models/user";
 
 var express = require("express");
 var router = express.Router();
@@ -18,9 +19,14 @@ router.post(
     db.checkUserPassword(
       req.body.userId,
       req.body.userPassword,
-      (jsonString: String, success: Boolean) => {
+      (jsonString: String, success: Boolean, user: User) => {
         if (success) {
-          res.status(200).json(jsonString);
+          res.status(200).json(JSON.stringify({
+            userId: user.id,
+            name: user.name,
+            nickName: user.nickName,
+            familyId: user.familyId
+          }));
         } else {
           res.status(400).json(jsonString);
         }
