@@ -2,6 +2,7 @@ var createError = require("http-errors");
 var express = require("express");
 var path = require("path");
 var cookieParser = require("cookie-parser");
+var favicon = require('serve-favicon');
 // var logger = require("morgan");
 
 // router변수 정의
@@ -13,6 +14,7 @@ var userRouter = require("./routes/userApi.ts")
 var bodyParser = require('body-parser');
 var app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(favicon(path.join(__dirname, 'public', 'favicon', 'favicon.ico')));
 
 // post요청받을때 body 파싱을 위함
 app.use(express.json()); 

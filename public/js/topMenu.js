@@ -1,3 +1,4 @@
+import { baseURL } from "./config.js";
 import { feedManager } from "./board.js";
 import { loginPageManager } from "./login.js";
 import { cookieManager } from "./cookie.js";
@@ -34,6 +35,8 @@ board === null || board === void 0 ? void 0 : board.addEventListener("click", ()
 chat === null || chat === void 0 ? void 0 : chat.addEventListener("click", () => {
     clearMainContentArea();
     onClickMenu(chat);
+    // 임시 테스트
+    window.location.href = baseURL + `socketTest`;
 });
 game === null || game === void 0 ? void 0 : game.addEventListener("click", () => {
     clearMainContentArea();
