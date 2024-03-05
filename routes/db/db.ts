@@ -217,7 +217,7 @@ function checkUserPassword(userId: String, userPassword: String, callback: (json
     } else {
       user.id = rows[0]["userId"]
       user.name = rows[0]["name"]
-      user.nickName = rows[0]["nickName"]
+      user.nickName = rows[0]["nickname"]
       user.familyId = rows[0]["familyId"]
       callback(JSON.stringify("{'message': 로그인 성공}"), true, user);
     }
