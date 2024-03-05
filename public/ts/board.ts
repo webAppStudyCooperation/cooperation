@@ -151,7 +151,8 @@ export class FeedManager {
           new Feed(
             boardItem,
             boardItem.title,
-            this.getComment(boardItem.boardId)
+            this.getComment(boardItem.boardId),
+            this.user
           )
         );
       });
@@ -420,7 +421,8 @@ class Feed {
   constructor(
     boardItem: BoardItem,
     title: string,
-    commentPromise: Promise<BoardComment[]>
+    commentPromise: Promise<BoardComment[]>,
+    loginedUser: User
   ) {
     this.boardItem = boardItem;
     this.commentPromise = commentPromise;
@@ -468,7 +470,7 @@ class Feed {
     this.inputForm.appendChild(this.input);
     this.inputForm.appendChild(this.inputBtn);
     this.inputBtn.addEventListener("click", (event) =>
-      this.inputBtnListener(event)
+      this.inputBtnListener(event, loginedUser)
     );
 
     /**input className 생성 */
@@ -518,12 +520,12 @@ class Feed {
   }
 
   /**댓글 등록 eventListener */
-  private async inputBtnListener(e: Event) {
+  private async inputBtnListener(e: Event, loginedUser: User) {
     e.preventDefault();
     // submit 이후 새로고침 방지
     console.log(this.input.value.toString);
 
-    await this.postNewComment();
+    await this.postNewComment(loginedUser);
     // reRenderㄴ
     this.commentUIrefresh();
 
@@ -544,7 +546,7 @@ class Feed {
   }
 
   /** 등록한 댓글 post */
-  private async postNewComment() {
+  private async postNewComment(loginedUser: User) {
     /**댓글 생성 -> body에 boardComment 넣어서 보낼 것 */
     // 임시
     // 현재 user에 대한 정보가 없는데....
@@ -554,7 +556,7 @@ class Feed {
       this.boardItem.boardId,
       this.boardItem.comments.length + 1,
       this.input.value,
-      this.boardItem.createUser
+      loginedUser
     );
 
     try {

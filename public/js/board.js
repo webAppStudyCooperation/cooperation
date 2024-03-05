@@ -133,7 +133,7 @@ export class FeedManager {
                 });
                 // 내림차순
                 d.forEach((boardItem) => {
-                    this.feedList.push(new Feed(boardItem, boardItem.title, this.getComment(boardItem.boardId)));
+                    this.feedList.push(new Feed(boardItem, boardItem.title, this.getComment(boardItem.boardId), this.user));
                 });
             });
             console.log(this.feedList);
@@ -341,7 +341,7 @@ export class FeedManager {
 }
 /** 하나의 피드 -> 하나의 boardItem 정보들로 구성*/
 class Feed {
-    constructor(boardItem, title, commentPromise) {
+    constructor(boardItem, title, commentPromise, loginedUser) {
         this.needRequestComment = true;
         this.commentUI = document.createElement("div");
         this.contentUI = document.createElement("div");
@@ -385,7 +385,7 @@ class Feed {
         this.inputBtn.innerText = "등록";
         this.inputForm.appendChild(this.input);
         this.inputForm.appendChild(this.inputBtn);
-        this.inputBtn.addEventListener("click", (event) => this.inputBtnListener(event));
+        this.inputBtn.addEventListener("click", (event) => this.inputBtnListener(event, loginedUser));
         /**input className 생성 */
         this.inputForm.className = "inputForm";
         this.input.className = "input";
@@ -426,12 +426,12 @@ class Feed {
         }
     }
     /**댓글 등록 eventListener */
-    inputBtnListener(e) {
+    inputBtnListener(e, loginedUser) {
         return __awaiter(this, void 0, void 0, function* () {
             e.preventDefault();
             // submit 이후 새로고침 방지
             console.log(this.input.value.toString);
-            yield this.postNewComment();
+            yield this.postNewComment(loginedUser);
             // reRenderㄴ
             this.commentUIrefresh();
             this.inputForm.reset();
@@ -451,13 +451,13 @@ class Feed {
         (_a = this.toggleBtn.parentNode) === null || _a === void 0 ? void 0 : _a.appendChild(this.commentUI);
     }
     /** 등록한 댓글 post */
-    postNewComment() {
+    postNewComment(loginedUser) {
         return __awaiter(this, void 0, void 0, function* () {
             /**댓글 생성 -> body에 boardComment 넣어서 보낼 것 */
             // 임시
             // 현재 user에 대한 정보가 없는데....
             // commentId 0부터 시작하는지 확인할것
-            let data = new BoardComment(this.boardItem.boardId, this.boardItem.comments.length + 1, this.input.value, this.boardItem.createUser);
+            let data = new BoardComment(this.boardItem.boardId, this.boardItem.comments.length + 1, this.input.value, loginedUser);
             try {
                 const res = yield fetch(baseURL + `api/boards/comment/add`, {
                     method: "POST",
