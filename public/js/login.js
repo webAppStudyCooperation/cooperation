@@ -55,6 +55,12 @@ class LoginPageManager {
         this.reSignForm = new ReSignForm();
         this.btnsEventListener();
     }
+    onLogOuted() {
+        this.loginForm.makeLogOutToLogin();
+    }
+    onLogIned() {
+        this.loginForm.makeLoginToLogout();
+    }
     drawLoginPage() {
         this.appendToMainContent(this.loginForm.form());
     }

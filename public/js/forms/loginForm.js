@@ -1,6 +1,6 @@
 import { baseURL } from "../config.js";
 import { InputsForm } from "./InputsForm.js";
-import { setCookie } from "../cookie.js";
+import { cookieManager } from "../cookie.js";
 /** 로그인 폼 -> 로그인 페이지 때 보여줄 폼  */
 export class LoginForm extends InputsForm {
     constructor() {
@@ -34,13 +34,12 @@ export class LoginForm extends InputsForm {
             if (response.status === 200) {
                 response.json().then((json) => {
                     console.log(json);
-                    let obj = JSON.parse(json);
-                    console.log(typeof obj);
-                    console.log(obj);
                     this.clearInputValues();
                     // 쿠키 생성
-                    setCookie("userId", userId, { secure: true });
-                    this.afterLogin();
+                    cookieManager.setCookie("userId", userId, {
+                        secure: false,
+                    });
+                    this.makeLoginToLogout();
                 });
             }
             else if (response.status === 400) {
@@ -79,21 +78,28 @@ export class LoginForm extends InputsForm {
      * 로그인 navBar에서 제거
      * 로그인 form 제거
      */
-    afterLogin() {
+    makeLoginToLogout() {
         const content = document.getElementById("mainContent");
         // const menuBar = document.getElementsByClassName("menuBar");
         const login = document.getElementById("sign");
-        const menuBar = login === null || login === void 0 ? void 0 : login.parentElement;
-        const logout = document.createElement("p");
-        logout.innerText = "로그아웃";
-        if (document.cookie) {
-            if (login != null && (login === null || login === void 0 ? void 0 : login.style.display) !== "none") {
-                login.style.display = "none";
-            }
-            if (content === null || content === void 0 ? void 0 : content.childElementCount) {
-                content === null || content === void 0 ? void 0 : content.replaceChildren();
-            }
-            menuBar === null || menuBar === void 0 ? void 0 : menuBar.appendChild(logout);
+        const logout = document.getElementById("logout");
+        if (logout != null)
+            logout.style.display = "block";
+        if (login != null)
+            login.style.display = "none";
+        if (content === null || content === void 0 ? void 0 : content.childElementCount) {
+            content === null || content === void 0 ? void 0 : content.replaceChildren();
         }
+    }
+    makeLogOutToLogin() {
+        // topBar에 다시 로그인 버튼 만들기
+        // topBar에서 로그아웃 버튼 떼기
+        const content = document.getElementById("mainContent");
+        const login = document.getElementById("sign");
+        const logout = document.getElementById("logout");
+        if (logout != null)
+            logout.style.display = "none";
+        if (login != null)
+            login.style.display = "block";
     }
 }

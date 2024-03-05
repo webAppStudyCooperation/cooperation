@@ -6,19 +6,30 @@ import { DateString } from "./models/back/boards.js";
 import { copyFileSync } from "fs";
 import { feedManager } from "./board.js";
 import { loginPageManager } from "./login.js";
+import { cookieManager } from "./cookie.js";
+import { LoginForm } from "./forms/loginForm.js";
 
 const login: HTMLElement | null = document.getElementById("sign");
 const board: HTMLElement | null = document.getElementById("board");
 const chat: HTMLElement | null = document.getElementById("chat");
 const game: HTMLElement | null = document.getElementById("game");
+const logout: HTMLElement | null = document.getElementById("logout");
 
 const mainContentElem: HTMLElement | null =
   document.getElementById("mainContent");
 
+// /**임시 유저 정보 , 로그인 구현 후 삭제할 것 */
+// const testUser = new User("test", "TESTNAME", "TESTNICKNAME", 0);
 /**임시 유저 정보 , 로그인 구현 후 삭제할 것 */
-const testUser = new User("test", "TESTNAME", "TESTNICKNAME", 0);
-/**임시 유저 정보 , 로그인 구현 후 삭제할 것 */
-let user = testUser;
+let user = undefined;
+window.onload = function () {
+  user = cookieManager.getUserFromCookie();
+  if (user === undefined) {
+    loginPageManager.onLogOuted();
+  } else {
+    loginPageManager.onLogIned();
+  }
+};
 
 // setFeedAtContent
 login?.addEventListener("click", () => {
@@ -41,6 +52,11 @@ game?.addEventListener("click", () => {
   clearMainContentArea();
   onClickMenu(game);
   window.location.href = "https://famous-squirrel-43f0b7.netlify.app/";
+});
+
+logout?.addEventListener("click", () => {
+  cookieManager.makeUserIdExpried();
+  loginPageManager.onLogOuted();
 });
 
 function onClickMenu(clicked: HTMLElement | null) {

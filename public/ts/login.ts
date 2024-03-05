@@ -76,6 +76,14 @@ class LoginPageManager {
     this.btnsEventListener();
   }
 
+  onLogOuted() {
+    this.loginForm.makeLogOutToLogin();
+  }
+
+  onLogIned() {
+    this.loginForm.makeLoginToLogout();
+  }
+
   drawLoginPage() {
     this.appendToMainContent(this.loginForm.form());
   }

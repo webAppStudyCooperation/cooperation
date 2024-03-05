@@ -6,7 +6,6 @@ import { DateString } from "./models/back/boards.js";
 import { copyFileSync } from "fs";
 // import { inputFeedForm } from "../frontModel/inputFeedForm";
 
-
 // const board: HTMLElement | null = document.getElementById("board");
 // const mainContentElem: HTMLElement | null =
 //   document.getElementById("mainContent");
@@ -82,8 +81,9 @@ export class FeedManager {
   private addBtn: HTMLButtonElement = document.createElement("button");
   private addBtnDiv: HTMLDivElement = document.createElement("div");
   private feedDiv: HTMLDivElement = document.createElement("div");
-  private mainContentElem: HTMLElement | null = document.getElementById("mainContent");
-  private user: User
+  private mainContentElem: HTMLElement | null =
+    document.getElementById("mainContent");
+  private user: User;
 
   /** 게시글 InputFeedForm */
   private inputFeedForm: InputFeedForm = new InputFeedForm();
@@ -371,7 +371,7 @@ export class FeedManager {
 
 const testUser = new User("test", "TESTNAME", "TESTNICKNAME", 0);
 let user = testUser;
-export const feedManager: FeedManager = new FeedManager(user)
+export const feedManager: FeedManager = new FeedManager(user);
 
 /** 하나의 피드 -> 하나의 boardItem 정보들로 구성*/
 class Feed {
@@ -389,7 +389,8 @@ class Feed {
   boardItem: BoardItem;
   private commentUI: HTMLDivElement = document.createElement("div");
   private contentUI: HTMLDivElement = document.createElement("div");
-  private mainContentElem: HTMLElement | null = document.getElementById("mainContent");
+  private mainContentElem: HTMLElement | null =
+    document.getElementById("mainContent");
 
   constructor(
     boardItem: BoardItem,
@@ -493,7 +494,7 @@ class Feed {
     e.preventDefault();
     // submit 이후 새로고침 방지
     console.log(this.input.value.toString);
-    
+
     await this.postNewComment();
     // reRenderㄴ
     this.commentUIrefresh();
@@ -502,14 +503,14 @@ class Feed {
   }
 
   private commentUIrefresh() {
-    this.clearCommentUI()
-    this.initCommentUI()
+    this.clearCommentUI();
+    this.initCommentUI();
   }
 
-  private clearCommentUI(){
-    this.toggleBtn.parentNode?.removeChild(this.commentUI)
+  private clearCommentUI() {
+    this.toggleBtn.parentNode?.removeChild(this.commentUI);
   }
-  private initCommentUI(){
+  private initCommentUI() {
     this.commentUI = this.createComment(this.boardItem.comments);
     this.toggleBtn.parentNode?.appendChild(this.commentUI);
   }
@@ -538,10 +539,10 @@ class Feed {
       });
 
       if (res.status == 200) {
-        this.boardItem.comments.push(data)
-        alert("등록 성공")
+        this.boardItem.comments.push(data);
+        alert("등록 성공");
       } else if (res.status == 400) {
-        alert("등록 실패")
+        alert("등록 실패");
       }
     } catch (error) {
       console.error(error);
@@ -729,7 +730,9 @@ class Feed {
           // 해당 commentId만 제외한 후 그리기
 
           //reRender
-          this.boardItem.comments = this.boardItem.comments.filter((e) => e.commentId != commentId);
+          this.boardItem.comments = this.boardItem.comments.filter(
+            (e) => e.commentId != commentId
+          );
           this.commentUIrefresh();
           this.boardItem.comments = this.boardItem.comments.filter(
             (e) => e.commentId != commentId
