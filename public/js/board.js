@@ -312,8 +312,8 @@ export class FeedManager {
         return this.addBtnDiv;
     }
 }
-const testUser = new User("test", "TESTNAME", "TESTNICKNAME", 0);
-let user = testUser;
+const sign = new User("test", "TESTNAME", "TESTNICKNAME", 0);
+let user = sign;
 export const feedManager = new FeedManager(user);
 /** 하나의 피드 -> 하나의 boardItem 정보들로 구성*/
 class Feed {
@@ -328,6 +328,7 @@ class Feed {
         this.feed.className = `singleFeed`;
         this.feedContentTitle = document.createElement("span");
         this.feedContentTitle.className = `contentTitle`;
+        this.feedWriter = document.createElement("span");
         //삭제 버튼
         this.removeBtn = document.createElement("button");
         this.removeBtn.innerText = "-";
@@ -366,6 +367,7 @@ class Feed {
         this.input.className = "input";
         this.inputBtn.className = "inputBtn";
         this.feed.appendChild(this.feedContentTitle);
+        this.feed.appendChild(this.feedWriter);
         this.feed.appendChild(this.removeBtn);
         this.feed.appendChild(this.editBtn);
         this.feed.appendChild(this.toggleBtn);
@@ -377,6 +379,7 @@ class Feed {
     }
     setUIValues() {
         this.feedContentTitle.innerText = this.boardItem.title;
+        this.feedWriter.innerText = "작성자: " + this.boardItem.createUser.nickName;
         this.contentUI.innerText = this.boardItem.content;
     }
     /** HTMLDivElement인 feed return */

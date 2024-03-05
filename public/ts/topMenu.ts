@@ -19,7 +19,7 @@ const mainContentElem: HTMLElement | null =
   document.getElementById("mainContent");
 
 // /**임시 유저 정보 , 로그인 구현 후 삭제할 것 */
-// const testUser = new User("test", "TESTNAME", "TESTNICKNAME", 0);
+// const sign = new User("test", "TESTNAME", "TESTNICKNAME", 0);
 /**임시 유저 정보 , 로그인 구현 후 삭제할 것 */
 let user = undefined;
 window.onload = function () {
@@ -43,10 +43,10 @@ board?.addEventListener("click", () => {
   onClickMenu(board);
 });
 chat?.addEventListener("click", () => {
-    clearMainContentArea()
-    onClickMenu(chat)
-    // 임시 테스트
-    window.location.href = baseURL + `socketTest`;
+  clearMainContentArea();
+  onClickMenu(chat);
+  // 임시 테스트
+  window.location.href = baseURL + `socketTest`;
 });
 game?.addEventListener("click", () => {
   clearMainContentArea();

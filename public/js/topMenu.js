@@ -1,3 +1,4 @@
+import { baseURL } from "./config.js";
 import { feedManager } from "./board.js";
 import { loginPageManager } from "./login.js";
 import { cookieManager } from "./cookie.js";
@@ -8,7 +9,7 @@ const game = document.getElementById("game");
 const logout = document.getElementById("logout");
 const mainContentElem = document.getElementById("mainContent");
 // /**임시 유저 정보 , 로그인 구현 후 삭제할 것 */
-// const testUser = new User("test", "TESTNAME", "TESTNICKNAME", 0);
+// const sign = new User("test", "TESTNAME", "TESTNICKNAME", 0);
 /**임시 유저 정보 , 로그인 구현 후 삭제할 것 */
 let user = undefined;
 window.onload = function () {
@@ -34,6 +35,8 @@ board === null || board === void 0 ? void 0 : board.addEventListener("click", ()
 chat === null || chat === void 0 ? void 0 : chat.addEventListener("click", () => {
     clearMainContentArea();
     onClickMenu(chat);
+    // 임시 테스트
+    window.location.href = baseURL + `socketTest`;
 });
 game === null || game === void 0 ? void 0 : game.addEventListener("click", () => {
     clearMainContentArea();
