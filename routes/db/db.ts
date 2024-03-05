@@ -206,15 +206,20 @@ function getFamily(familyId: number, callback: (family: Family) => {}) {
   });
 }
 
-function checkUserPassword(userId: String, userPassword: String, callback: (jsonString: String, success: Boolean) => {}) {
+function checkUserPassword(userId: String, userPassword: String, callback: (jsonString: String, success: Boolean, user: User) => {}) {
   let q = `Select * From cooperation.user where userId = "${userId}"`
+  const user = new User("","","",0);
   query(q, (err: any, rows: any, fields: any) => {
     if(rows[0] == null || rows[0] == undefined) {
-      callback(JSON.stringify("{'message': 일치하는 아이디 없음}"), false);
+      callback(JSON.stringify("{'message': 일치하는 아이디 없음}"), false, user);
     } else if(rows[0]["userPassword"] != userPassword){
-      callback(JSON.stringify("{'message': 비밀번호 불일치}"), false);
+      callback(JSON.stringify("{'message': 비밀번호 불일치}"), false, user);
     } else {
-      callback(JSON.stringify("{'message': 로그인 성공}"), true);
+      user.id = rows[0]["userId"]
+      user.name = rows[0]["name"]
+      user.nickName = rows[0]["nickName"]
+      user.familyId = rows[0]["familyId"]
+      callback(JSON.stringify("{'message': 로그인 성공}"), true, user);
     }
   });
 }
