@@ -229,18 +229,36 @@ function insertUser(userId: String, userPassword: String, name: String, nickname
   let insertQuery = `INSERT INTO cooperation.user (userId, userPassword, name, nickname, familyId) VALUES ("${userId}", "${userPassword}", "${name}", "${nickname}", ${familyId});`;
   query(checkQuery, (err: any, rows: any, fields: any) => {
     if(rows[0] == null || rows[0] == undefined) {
-      // 기존 아이디 없으므로 가입 진행
-      query(insertQuery, (err: any, rows: any, fields: any) => {
-        if(err) {
-          callback(JSON.stringify("{'message': 가입 실패}"),false)
-          return;
+      checkDuplicatedNickName(nickname, (duplicated) => {
+        if(duplicated) {
+          callback(JSON.stringify("{'message': 닉네임 중복}"),false)
+        } else {
+          query(insertQuery, (err: any, rows: any, fields: any) => {
+            if(err) {
+              callback(JSON.stringify("{'message': 가입 실패}"),false)
+            } else {
+              callback(JSON.stringify("{'message': 가입 완료}"),true)
+            }
+          })
         }
-        callback(JSON.stringify("{'message': 가입 완료}"),true)
       })
     } else {
       callback(JSON.stringify("{'message': 아이디 중복}"),false)
     }
   });
+}
+
+function checkDuplicatedNickName(nickName: String, callback: (duplicated: boolean)=>void) {
+  const q = `select count(*) as 'count' from user where nickname="${nickName}"`
+  query(q, (err: any, rows: any, fields: any) => {
+    let count = undefined
+    if(rows[0] != undefined && rows[0] != null) count = rows[0]['count'];
+    if(count == 0) {
+      callback(false)
+    } else {
+      callback(true)
+    }
+  })
 }
 
 function deleteUser(userId: String, callback: (jsonString: String, success: Boolean) => {}) {

@@ -24,7 +24,7 @@ router.post(
           res.status(200).json(JSON.stringify({
             userId: user.id,
             name: user.name,
-            nickName: "12312312",
+            nickName: user.nickName,
             familyId: user.familyId
           }));
         } else {
