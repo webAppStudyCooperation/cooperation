@@ -5,9 +5,16 @@ interface Options {
 }
 
 class CookieManager {
+  // user 정보의 존재 여부는 id가 있냐 없냐로만 판단할 것
+  userId: string = "userId";
+  userName: string = "userName";
+  userNickName: string = "userNickName";
+  userFamilyId: string = "familyId";
+
   expireTime = 1 * 24 * 60 * 60 * 1000;
 
   makeUserIdExpried() {
+    console.log("makeUserIdExpried");
     document.cookie = "userId=;max-age=-999";
   }
 
@@ -34,30 +41,32 @@ class CookieManager {
     document.cookie = updatedCookie; // 새로 갱신
   }
 
-  getAllCookie(): Options {
-    let result: Options = {};
-    const arr = document.cookie.split(";");
-    for (let index in arr) {
-      const tmp = arr[index].split("=");
-      result[tmp[0]] = tmp[1];
-    }
-    return result;
-  }
+  // getAllCookie(): Map<string, string> {
+  //   let result = new Map();
+  //   const arr = document.cookie.split(";");
+  //   for (let index in arr) {
+  //     const tmp = arr[index].split("=");
+  //     result.set(tmp[0], tmp[1]);
+  //   }
+  //   return result;
+  // }
 
   getCookie(name: string) {
-    // let matches = document.cookie.match(
-    //   new RegExp(
-    //     "(?:^|; )" +
-    //       name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, "\\$1") +
-    //       "=([^;]*)"
-    //   )
-    // );
-    // return matches ? decodeURIComponent(matches[1]) : undefined;
-    const options = this.getAllCookie();
-    for (let key in options) {
-      if (key === name) return options[key];
-    }
-    return undefined;
+    let matches = document.cookie.match(
+      new RegExp(
+        "(?:^|; )" +
+          name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, "\\$1") +
+          "=([^;]*)"
+      )
+    );
+    return matches ? decodeURIComponent(matches[1]) : undefined;
+    // const map = this.getAllCookie();
+    // map.forEach((value, key, mapObject) => {
+    //   console.log(key);
+    //   console.log(typeof key);
+    //   if (key === name) return value;
+    // });
+    // return undefined;
   }
 
   checkCookieExpiration(): Boolean {
@@ -76,12 +85,38 @@ class CookieManager {
       return true;
     }
   }
-
+  setUser(user: User) {
+    console.log("setUser");
+    this.setCookie(this.userId, user.id);
+    this.setCookie(this.userName, user.name);
+    this.setCookie(this.userNickName, user.nickName);
+    this.setCookie(this.userFamilyId, `${user.familyId}`);
+  }
   getUserFromCookie(): User | undefined {
-    const userId = this.getCookie("userId");
-    if (typeof userId != "string") return undefined;
+    const userId = this.getCookie(this.userId);
+    const userName = this.getCookie(this.userName);
+    const userNN = this.getCookie(this.userNickName);
+    const userFI = this.getCookie(this.userFamilyId);
 
-    return new User(userId, "", "", 0);
+    // console.log(typeof userId);
+    // console.log(typeof userName);
+    // console.log(typeof userNN);
+    // console.log(typeof userFI);
+
+    // console.log(userId);
+    // console.log(userName);
+    // console.log(userNN);
+    // console.log(userFI);
+
+    const valid =
+      typeof userId == "string" &&
+      typeof userName == "string" &&
+      typeof userNN == "string" &&
+      typeof userFI == "string";
+
+    if (!valid) return undefined;
+
+    return new User(userId, userName, userNN, +userFI);
   }
 }
 

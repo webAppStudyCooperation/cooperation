@@ -1,61 +1,33 @@
 /** 회원 탈퇴  */
 import { baseURL } from "../config.js";
 import { makeReSignUserJsonStr } from "../models/back/user.js";
-function inputsForm() {
-    const inputsDiv = document.createElement("div");
-    const idInput = document.createElement("input");
-    const pwInput = document.createElement("input");
-    inputsDiv.id = "inputsId";
-    inputsDiv.appendChild(idInput);
-    inputsDiv.appendChild(pwInput);
-    idInput.placeholder = "아이디를 입력해주세요";
-    pwInput.placeholder = "비밀번호를 입력해주세요";
-    return inputsDiv;
-}
-// 임시화면
-function goodByeDiv() {
-    const div = document.createElement("div");
-    const h1 = document.createElement("h1");
-    h1.innerText = "Goodbye!";
-    div.appendChild(h1);
-    return div;
-}
+import { InputForm } from "./InputForm.js";
 export class ReSignForm {
-    constructor() {
-        this.reSignBtn = document.createElement("button");
-        this.reSignForm = document.createElement("form");
-        this.backBtn = document.createElement("input");
-        // 탈퇴 후 임시화면
-        this.goodByeDiv = document.createElement("div");
-        this.inputsDiv = inputsForm();
-        this.reSignForm.append(this.inputsDiv);
-        this.reSignForm.appendChild(this.backBtn);
-        this.reSignForm.appendChild(this.reSignBtn);
-        // 탈퇴 후 임시화면
-        this.goodByeDiv = goodByeDiv();
-        this.userIdInput = this.inputsDiv.children[0];
-        this.userPasswordInput = this.inputsDiv.children[1];
-        // Value값 읽기 위해 타입캐스팅
-        this.reSignBtn.innerText = "회원탈퇴";
-        this.backBtn.value = "뒤로가기";
-        this.backBtn.type = "reset";
-        this.reSignBtn.addEventListener("click", (e) => {
-            this.eventListener(e);
+    constructor(onClickBack, onSuccecsReSign, parentElement) {
+        this.inputForm = new InputForm();
+        this.parentElement = parentElement;
+        this.inputId = this.inputForm.addInputForm("아이디를 입력해주세요.", true);
+        this.inputPassword = this.inputForm.addInputForm("PW를 입력해주세요.", false);
+        this.inputForm.addButton("뒤로가기", (e) => {
+            onClickBack();
         });
-        // this.backBtn.addEventListener("click", (e) => {
-        //   e.preventDefault();
-        // });
+        this.inputForm.addButton("회원탈퇴", (e) => {
+            this.onClickReSign(onSuccecsReSign);
+        });
+        this.inputForm.appendFormTo(parentElement);
     }
-    eventListener(e) {
-        e.preventDefault();
-        const promise = this.delete(this.userIdInput.value, this.userPasswordInput.value);
+    removeSelf(parent) {
+        this.inputForm.removeFormFrom(parent);
+    }
+    onClickReSign(onSuccessReSign) {
+        const promise = this.delete(this.inputId.value, this.inputPassword.value);
         promise === null
             ? alert("유효하지 않은 형식 ㅠㅠ")
             : promise === null || promise === void 0 ? void 0 : promise.then((res) => {
                 res.json().then((json) => {
                     if (res.status === 200) {
                         alert("회원 탈퇴가 성공적으로 이뤄졌습니다.");
-                        this.drawGoodbyeScreen();
+                        onSuccessReSign();
                     }
                     else if (res.status === 400) {
                         alert(json);
@@ -84,17 +56,12 @@ export class ReSignForm {
             body: makeReSignUserJsonStr(userId, userPassword),
         });
     }
-    drawGoodbyeScreen() {
-        this.reSignForm.replaceChildren();
-        this.reSignForm.appendChild(this.goodByeDiv);
-    }
-    form() {
-        return this.reSignForm;
-    }
-    returnReSignBtn() {
-        return this.reSignBtn;
-    }
-    returnBackBtn() {
-        return this.backBtn;
+    // 임시화면
+    showGoodbye() {
+        this.inputForm.removeFormFrom(this.parentElement);
+        const div = document.createElement("div");
+        const h1 = document.createElement("h1");
+        h1.innerText = "Goodbye!";
+        this.parentElement.appendChild(h1);
     }
 }

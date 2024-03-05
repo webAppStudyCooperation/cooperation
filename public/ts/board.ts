@@ -3,7 +3,7 @@ import { BoardItem } from "./models/back/boards.js";
 import { BoardComment } from "./models/back/comments.js";
 import { User } from "./models/back/user.js";
 import { DateString } from "./models/back/boards.js";
-import { copyFileSync } from "fs";
+import { feedManager } from "./topMenu.js";
 // import { inputFeedForm } from "../frontModel/inputFeedForm";
 
 // const board: HTMLElement | null = document.getElementById("board");
@@ -19,6 +19,7 @@ const allOfBoardContent: HTMLDivElement = document.createElement("div");
 allOfBoardContent.className = "allOfBoardContent";
 
 class InputFeedForm {
+  isClosed = true;
   inputFeedForm: HTMLFormElement = document.createElement("form");
   inputsDiv: HTMLDivElement = document.createElement("div");
   inputContent: HTMLInputElement = document.createElement("input");
@@ -55,9 +56,14 @@ class InputFeedForm {
     return this.inputFeedForm;
   }
 
+  getIsClosed(): boolean {
+    return this.isClosed;
+  }
+
   show() {
     // allOfBoardContent?.appendChild(this.returnForm());
     feedManager.returnAddBtnFeed().appendChild(this.returnForm());
+    this.isClosed = false;
   }
 
   close() {
@@ -65,6 +71,7 @@ class InputFeedForm {
     //   allOfBoardContent?.removeChild(this.returnForm());
     // }
     feedManager.returnAddBtnFeed().removeChild(this.returnForm());
+    this.isClosed = true;
   }
 }
 
@@ -100,10 +107,23 @@ export class FeedManager {
     this.addBtnDiv.appendChild(this.addBtn);
 
     this.addBtn.addEventListener("click", () => {
-      this.showInputForm();
+      if (this.isInputFormClosed()) {
+        this.addBtn.innerText = "피드 추가 닫기:-";
+        this.showInputForm();
+      } else {
+        this.addBtn.innerText = "피드 추가:+";
+        this.closeInputForm();
+      }
     });
     // 맨위 addBtn -> 피드 추가
     allOfBoardContent?.appendChild(this.addBtnDiv);
+  }
+
+  setUser(user: User) {
+    if (this.user.familyId != user.familyId) {
+      this.setData(user.familyId);
+    }
+    this.user = user;
   }
 
   private async setData(familyId: number) {
@@ -309,9 +329,14 @@ export class FeedManager {
    * FeedManager에서 FeedList에 push한다s
    *
    */
-
+  private isInputFormClosed(): boolean {
+    return this.inputFeedForm.getIsClosed();
+  }
   private showInputForm() {
     this.inputFeedForm.show();
+  }
+  private closeInputForm() {
+    this.inputFeedForm.close();
   }
 
   /**피드 등록시 (게시글 등록) 서버에게 post 요청 */
@@ -322,6 +347,9 @@ export class FeedManager {
     // 임시 testData, 로그인 구현 이후 수정 필요
     // 다른 폴더로 클래스 분리했을시 boardId feedmanager 접근 못함
     // feedManager.getFeedNumber() + 1
+
+    console.log(`this.user\n `);
+    console.log(this.user);
     let data = {
       boardId: 0,
       title: titleValue,
@@ -330,7 +358,7 @@ export class FeedManager {
       modifyDate: "2021:07:29 00:00:00",
       password: null,
       secret: 0,
-      createUser: user,
+      createUser: this.user,
       familyId: 0,
     };
 
@@ -345,7 +373,7 @@ export class FeedManager {
         if (res.status === 200) {
           this.inputFeedForm.returnForm().reset();
 
-          this.afterPostNewFeed(user);
+          this.afterPostNewFeed(this.user);
 
           console.log(`success!`);
         } else if (res.status === 400) {
@@ -369,15 +397,11 @@ export class FeedManager {
   }
 }
 
-const sign = new User("test", "TESTNAME", "TESTNICKNAME", 0);
-let user = sign;
-export const feedManager: FeedManager = new FeedManager(user);
-
 /** 하나의 피드 -> 하나의 boardItem 정보들로 구성*/
 class Feed {
   private feed: HTMLDivElement;
-  private feedContentTitle: HTMLSpanElement;
-  private feedWriter: HTMLSpanElement;
+  private feedContentTitle: HTMLDivElement;
+  private feedWriter: HTMLDivElement;
   private toggleBtn: HTMLButtonElement;
   private removeBtn: HTMLButtonElement;
   private editBtn: HTMLButtonElement;
@@ -403,9 +427,9 @@ class Feed {
     this.feed = document.createElement("div");
     this.feed.className = `singleFeed`;
 
-    this.feedContentTitle = document.createElement("span");
+    this.feedContentTitle = document.createElement("div");
     this.feedContentTitle.className = `contentTitle`;
-    this.feedWriter = document.createElement("span");
+    this.feedWriter = document.createElement("div");
 
     //삭제 버튼
     this.removeBtn = document.createElement("button");
@@ -530,7 +554,7 @@ class Feed {
       this.boardItem.boardId,
       this.boardItem.comments.length + 1,
       this.input.value,
-      user
+      this.boardItem.createUser
     );
 
     try {

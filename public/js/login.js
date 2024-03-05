@@ -1,7 +1,6 @@
 import { LoginForm } from "./forms/loginForm.js";
 import { SignUpForm } from "./forms/signUpForm.js";
 import { ReSignForm } from "./forms/reSignFrom.js";
-import { feedManager } from "./board.js";
 import { baseURL } from "./config.js";
 /**
  * 로그인  - login
@@ -27,9 +26,9 @@ function welcomeDiv() {
     const boardBtn = document.createElement("button");
     const chatBtn = document.createElement("button");
     const gameBtn = document.createElement("button");
-    boardBtn.addEventListener("click", () => {
-        feedManager.setFeedAtContent();
-    });
+    // boardBtn.addEventListener("click", () => {
+    //   feedManager.setFeedAtContent();
+    // });
     chatBtn.addEventListener("click", () => {
         window.location.href = baseURL + `socketTest`;
     });
