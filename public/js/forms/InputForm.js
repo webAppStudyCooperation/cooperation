@@ -20,6 +20,7 @@ export class InputForm {
         else {
             input.type = "password";
         }
+        input.className = "input";
         input.placeholder = placeholder;
         this.baseForm.appendChild(input);
         this.inputForms.push(input);
