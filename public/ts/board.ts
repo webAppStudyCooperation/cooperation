@@ -470,9 +470,14 @@ class Feed {
     );
 
     /**input className 생성 */
+
+    //문제
+
     this.inputForm.className = "inputForm";
     this.input.className = "input";
     this.inputBtn.className = "inputBtn";
+
+    // inputFeedDiv.className = "commentsInput";
 
     this.feed.appendChild(this.feedContentTitle);
     this.feed.appendChild(this.feedWriter);
@@ -505,13 +510,12 @@ class Feed {
 
     if (this.toggleBtn.innerText === "open") {
       this.showContent();
-      this.showComment();
-
       this.toggleBtn.parentNode?.appendChild(this.inputForm);
+      this.showComment();
     } else {
       this.hideComent();
-      this.hideContent();
       this.toggleBtn.parentNode?.removeChild(this.inputForm);
+      this.hideContent();
     }
   }
 
@@ -660,8 +664,7 @@ class Feed {
     const innerAddBtn: HTMLButtonElement = document.createElement("button");
 
     /** className 지정 */
-    // inputFeedDiv.className = "inputFeedDiv";
-    inputFeedDiv.className = "inputForm";
+    inputFeedDiv.className = "inputFeedDiv";
     inputContent.className = "inputContent";
     inputTitle.className = "inputTitle";
     inputTitle.type = "textarea";

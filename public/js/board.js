@@ -375,9 +375,11 @@ class Feed {
         this.inputForm.appendChild(this.inputBtn);
         this.inputBtn.addEventListener("click", (event) => this.inputBtnListener(event, loginedUser));
         /**input className 생성 */
+        //문제
         this.inputForm.className = "inputForm";
         this.input.className = "input";
         this.inputBtn.className = "inputBtn";
+        // inputFeedDiv.className = "commentsInput";
         this.feed.appendChild(this.feedContentTitle);
         this.feed.appendChild(this.feedWriter);
         this.feed.appendChild(this.removeBtn);
@@ -404,13 +406,13 @@ class Feed {
         var _a, _b;
         if (this.toggleBtn.innerText === "open") {
             this.showContent();
-            this.showComment();
             (_a = this.toggleBtn.parentNode) === null || _a === void 0 ? void 0 : _a.appendChild(this.inputForm);
+            this.showComment();
         }
         else {
             this.hideComent();
-            this.hideContent();
             (_b = this.toggleBtn.parentNode) === null || _b === void 0 ? void 0 : _b.removeChild(this.inputForm);
+            this.hideContent();
         }
     }
     /**댓글 등록 eventListener */
@@ -551,8 +553,7 @@ class Feed {
         const inputTitle = document.createElement("input");
         const innerAddBtn = document.createElement("button");
         /** className 지정 */
-        // inputFeedDiv.className = "inputFeedDiv";
-        inputFeedDiv.className = "inputForm";
+        inputFeedDiv.className = "inputFeedDiv";
         inputContent.className = "inputContent";
         inputTitle.className = "inputTitle";
         inputTitle.type = "textarea";
