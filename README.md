@@ -17,3 +17,16 @@
 ### socket.io 모듈 관련 오류 발생시  
 1. sudo npm install socket.io
 2. sudo npm link socket.io  
+
+
+### 모바일 빌드의 경우 androidStudio, Xcode, adb, 환경변수 등이 설정되어 있어야 테스트 가능함
+
+### 모바일 관련 테스트 (RN)
+1. cd ./RN/cooperation
+2. npm install
+3. npm start
+
+
+### mac/linux에서 권한 문제 발생시
+> sudo chmod -R 777 ./  
+> 으로 모든 파일에 대한 일기/쓰기/실행 권한 추가  
